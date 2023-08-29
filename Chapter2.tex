@@ -1,0 +1,515 @@
+    %%%%%%%%%%%%%
+    We now extend the definition of the information measures beyond discrete distributions to more general spaces. First, we consider the case of continuous distributions in $\mathbb{R}^d$, and introduce the analogs of entropy, relative entropy, and mutual information. We study their properties and compare them with their discrete counterparts. Next, we define relative entropy and mutual information for general probability spaces, and establish two variational definitions. Finally, we introduce a class of information measures that generalize relative entropy, called the $f$-divergences, and study some of their properties. 
+    %%%%%%%%%%%%%
+
+ 
+    \section{Continuous Distributions}
+        First we focus on the case of continuous distributions on $\X =\reals^d$. That is, we focus on distributions $P_X$ which admit a density, denoted by $f_X$, with respect to the Lebesgue measure on $\X$. This implies that for any measurable $E \subset \X$, we have $P_X = \int_{\X} \boldsymbol{1}_E(x) f_X(x) dx  = \int_{E} f_X(x) dx$. For distributions $(X, Y)$ with joint density $f_{XY}$, we also assume the existence of conditional densities $f_{Y|X}$ and $f_{X|Y}$ satisfying 
+        \begin{align}
+            P_{XY}(E) = \int_{\X}f_X(x)dx \int_{\Y} f_{Y|X}(y) \boldsymbol{1}_E(x,y)dy = \int_{\Y}f_Y(y)dy \int_{\X} f_{X|Y}(x) \boldsymbol{1}_E(x,y)dx.  
+        \end{align}
+        For such distributions, we can define the continuous analogs of entropy, relative entropy, and mutual information, as well as their conditional variants. 
+
+        \begin{definition}[Differential Entropy]
+            \label{def:diff-entropy}
+            The differential entropy of a continuous random variable $X$, with density $f_X$, is defined as 
+            \begin{align}
+                h(X) = -\int_{\X} f_X(x) \log(f_X(x)) dx. 
+            \end{align}
+            Similarly, conditional entropy of $Y$ given $X$ is defined as 
+            \begin{align}
+                h(Y|X) = -\int_{\X}f_X(x) dx \int_{\Y}  f_{Y|X}(y|x) \log \lp f_{Y|X}(y|x) \rp dy. 
+            \end{align}
+        \end{definition}
+
+        \begin{example}
+            \label{example:diff-ent-uniform}
+            Suppose $\X = [0, a]$, and $X$ is a the uniformly distributed random variable over $\X$ with density $f_X(x) = 1/a$ for all $x \in \X$. Then, the  differential entropy of $X$ is equal to 
+            \begin{align}
+                h(X) = \int_{\X} \frac{1}{a} \log(a) dx = \log(a). 
+            \end{align}
+            Thus, $h(X)=0$ for $a=1$, $h(X)<0$ for $a<1$, and $h(X)>0$ for $a>1$. This is in contrast with entropy defined for discrete distributions, which is always non-negative, and equal to $0$ only for Dirac distributions.  
+        \end{example}
+
+        \begin{example}
+            \label{example:diff-ent-gaussian} 
+            Consider a multivariate Gaussian random variable~($X$) over $\X = \reals^d$, with mean $\mu$ and covariance matrix $K$. The density of this random variable is 
+            \begin{align}
+                f_X(x) = \frac{1}{\sqrt{(2\pi)^n |K|}} \exp\lp - \frac{1}{2} (x-\mu)^TK^{-1}(x-\mu) \rp. 
+            \end{align}
+            Then, the differential entropy of $X$ is equal to 
+            \begin{align}
+                h(X)  &=  \log \lp \sqrt{(2\pi)^d} |K| \rp + \frac{1}{2}\int_{\X} (x-\mu)^{T} K^{-1} (x-\mu)f_X(x) dx\\
+                &=  \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{1}{2} \mathbb{E}\lb (X-\mu)^{T} K^{-1} (X-\mu) \rb \\
+                &= \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{1}{2} \sum_{i=1}^d \sum_{j=1}^d \mathbb{E}\lb (X_i - \mu_i)K^{-1}_{ij}(X_j-\mu_j)  \rb \\
+                &= \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{1}{2} \sum_{i=1}^d \sum_{j=1}^d K^{-1}_{ij}\blue{\mathbb{E}\lb (X_i - \mu_i)(X_j-\mu_j)  \rb}  \\
+                &= \frac{1}{2}\log \lp (2\pi)^d |K| \rp +  \frac{1}{2} \sum_{i=1}^d \sum_{j=1}^d K^{-1}_{ij}\blue{K_{ij}}  \\
+                &= \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{1}{2} \sum_{i=1}^d \sum_{j=1}^d K^{-1}_{ij}K_{ji}  \\
+                &=  \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{1}{2} \sum_{i=1}^d (I_d)_{ii} 
+                = \frac{1}{2}\log \lp (2\pi)^d |K| \rp + \frac{d}{2}  \\
+                & =  \frac{1}{2} \log \lp (2\pi e)^d |K| \rp \text{ nats/bits}. 
+            \end{align}
+            A simple consequence of this is that for univariate Gaussian with mean $\mu$, and variance $\sigma^2$, the differential entropy is equal to $(1/2) \log (2\pi e \sigma^2)$ nats/bits.
+        \end{example}
+
+        An interesting corollary of this result is the co
+
+        \begin{definition}
+            \label{def:rel-ent-cont-1} Suppose $P_X$ and $P_Y$ are two continuous distributions on $\X$, with densities $f_X$ and $f_Y$ respectively. Then, the relative entropy between them is defined as 
+            \begin{align}
+                \dkl(P_X \parallel P_Y) =
+                \begin{cases}
+                \int_{\X} f_X(x) \log \lp \frac{f_X(x)}{f_Y(x)} \rp dx,  &\quad \text{if } \{f_Y=0\} \subset \{f_X=0\}, \\    
+                 +\infty, &\quad \text{otherwise}. 
+                \end{cases}
+            \end{align}
+            Similarly, let $P_{XY}$~(with density $f_{XY}$) and $Q_{XY}$~(with density $g_{XY}$) denote two continuous joint distributions over $\X \times \Y$. Then the conditional relative entropy between $P_{Y|X}$ and $Q_{Y|X}$ is defined as 
+            \begin{align}
+                \dkl(P_{Y|X} \parallel Q_{Y|X} | P_X) = \int_{\X}f_X(x) dx \int_{\Y} f_{Y|X}(y|x) \log \lp \frac{f_{Y|X}(y|x)}{g_{Y|X}(y|x)} \rp dy
+            \end{align}
+        \end{definition}
+
+        \begin{example}
+            \label{example:rel-ent-cont-1} 
+            The relative entropy between two univariate Gaussians, $P = N(\mu_1, \sigma_1^2)$ and $Q=N(\mu_2, \sigma_2^2)$ is equal to 
+            \begin{align}
+                \dkl(P \parallel Q) &= \mathbb{E}_P \lb \log (p(X)/q(X)) \rb = \mathbb{E}_P\lb \log\lp \frac{\sigma_2}{\sigma_1}\rp + \frac{1}{2}\lp \frac{(X-\mu_2)^2}{\sigma_2^2} - \frac{(X-\mu_1)^2}{\sigma_1^2} \rp \rb \\
+                &= \log\lp \frac{\sigma_2}{\sigma_1}\rp + \frac{1}{2} \mathbb{E}_P\lb \lp \frac{(X-\mu_2)^2}{\sigma_2^2} - \frac{(X-\mu_1)^2}{\sigma_1^2} \rp \rb \\
+                &= \log\lp \frac{\sigma_2}{\sigma_1}\rp + \frac{1}{2} \lp \frac{\sigma_2^2 + (\mu_1-\mu_2)^2}{\sigma_2^2}  - 1\rp 
+                = \log\lp \frac{\sigma_2}{\sigma_1}\rp + \frac{(\mu_1-\mu_2)^2}{2}. 
+            \end{align}
+            Thus, for two distributions with equal variance,  the relative entropy is proportional to the difference in mean squared. 
+        \end{example}
+
+        \begin{example}
+            Note that the relative entropy can be infinite even if the distributions are absolutely continuous. For example, consider the relative entropy between $P$ and $Q$, when $P$ has a Cauchy distribution, and $Q$ has a Gaussian distribution. Clearly, $P \ll Q$ and $Q\ll P$. However, 
+            \begin{align}
+                \dkl(P\parallel Q) = \mathbb{E}_P\lb  \log(p(X)/q(X) \rb \geq \mathbb{E}_P[X^2] = \infty. 
+            \end{align}
+        \end{example}
+        We end this section with a result about a characterization of Gaussian in terms of the maximum entropy achieving distribution among the class of all distributions with finite second moment. 
+        \begin{proposition}
+            \label{prop:max-ent-1} Let $\mc{P}_2(\reals)$ denote the class of continuous probability distributions on $\reals$ with zero mean and with second moment upper bounded by $b<\infty$. Then, the distribution from $\mc{P}_2$ with the largest differential entropy is $N(0, b)$. 
+        \end{proposition}
+        \begin{proof}
+            Without loss of generality, we assume that $b=1$. 
+            
+            Suppose $P$ be any distribution in $\mc{P}_2$, with density $f$, and Let $\varphi$ denote the density of the standard normal random variable. Then, by the nonnegativity of relative entropy, we have 
+            \begin{align}
+                0 & \leq \dkl(f \parallel \varphi)  = \int_{\reals} f(x) \big(\log(f(x))  - \log(\varphi(x)) \big) dx \\
+                & = -\int_{\reals} f(x) \log(\varphi(x)) dx + \int_{\reals} f(x) \log(f(x)) dx \\
+                & = -\int_{\reals} \varphi(x) \log(\varphi(x)) dx - h(f) \\
+                & = h(\varphi) - h(f). 
+            \end{align}
+        \end{proof}
+
+        \begin{proposition}
+            \label{prop:max-ent-2} Let $\mc{P}_a$ denote all continuous distributions supported on $[0, a]$. Then, the distribution from $\mc{P}_a$ with the largest entropy is the uniform distribution. 
+        \end{proposition}
+        \begin{proof}
+            
+        \end{proof}
+
+        \begin{definition}
+            \label{def:mi-cont}
+            The mutual information between two continuous random variables $X$ and $Y$ is defined as 
+            \begin{align}
+                I(X;Y) = \int_{\X \times \Y} f_{XY}(x, y) \log \lp \frac{ f_{XY}(x, y)}{f_X(x) f_Y(y)} \rp dx\, dy. 
+            \end{align}
+            It is easy to check that $I(X;Y) = h(X) - h(X|Y) = h(Y) - h(Y|X)$. 
+        \end{definition}
+
+        \subsection{Connections to discrete measures via quantization} 
+            \label{subsec:info-measures-quantization} 
+
+            \begin{example}
+                Let $U$ denote the random variable with uniform distribution on $[0, a]$. For any $\Delta >0$, let $U_\Delta$ denote the discrete quantization of $U$: that is, $U_\Delta$ takes values in the set $\{i\Delta: 1 \leq i \leq a/\Delta\}$.  Then, we have the following relation: 
+                \begin{align}
+                    H(U_\Delta) = \log(a/\Delta) = \log (a) - \log(\Delta) = h(U) - \log(\Delta). 
+                \end{align}
+                Or in other words, for any $\Delta>0$~(such that $a/\Delta$ is an integer), we have 
+                \begin{align}
+                    H(U_\Delta) + \log(\Delta) = h(U).  
+                \end{align}
+            \end{example}
+            We now show that the same relation between $H(\cdot)$ and $h(\cdot)$ holds more generally for continuous distributions. 
+
+            \begin{definition}
+                \label{def:quantized-rv-1}
+                Let $X$ denote a real-valued random variable with continuous density $f_X$. For any $\Delta>0$, partition $\X =\reals$ into a (countable) grid of size $\Delta$, consisting of sets
+                \begin{align}
+                    E_i = [i\Delta, (i+1)\Delta), \quad \text{for } -\infty \leq i \leq \infty. 
+                \end{align}
+                Then, for any $i$, due to the mean-value theorem, there exists an $x_i \in E_i$, such that $f_X(x_i) \Delta = \int_{E_i} f_X(x) dx \defined p_i$. We define the $\Delta$-quantized version of $X$, denoted by $X_\Delta$, as 
+                \begin{align}
+                    X_\Delta = x_i, \quad \text{with probability } p_i, \quad \text{for } i \in \mathbb{Z}. 
+                \end{align}
+            \end{definition}
+
+            \begin{theorem}
+                \label{thm:quantized-entropy} Consider the case of $\X = \reals$, and let $X$ be a continuous distribution with (a Riemann integrable) density function $f_X$. 
+                Then, we have the following: 
+                \begin{align}
+                    \lim_{\Delta \downarrow 0} H(X_\Delta) + \log(\Delta) = h(X) = h(f_X), 
+                \end{align}
+                where $X_\Delta$ is the $\Delta$-quantized version of $X$~(\Cref{def:quantized-rv-1}). 
+            \end{theorem}
+            \begin{proof}
+                The proof follows directly from the definition of discrete entropy. In particular, 
+                \begin{align}
+                    -H(X_\Delta) &= \sum_{i \in \mathbb{Z}} p_i \log p_i = \sum_{i\in \mathbb{Z}} f_X(x_i) \Delta \lp \log (f_X(x_i)) + \log(\Delta) \rp \\
+                    & = \sum_{i\in \mathbb{Z}} f_X(x_i) \Delta \log (f_X(x_i)) + \log(\Delta)\sum_{i \in \mathbb{Z}} p_i\\
+                    & =  \sum_{i\in \mathbb{Z}} f_X(x_i) \Delta \log (f_X(x_i))  + \log(\Delta), 
+                \end{align}
+                where the last equality simply uses the fact that $\sum_{i \in \mathbb{Z}} p_i = 1$. On rearranging the above relation, we get 
+                \begin{align}
+                    H(X_\Delta) + \log \Delta =  -\sum_{i\in \mathbb{Z}} f_X(x_i) \Delta \log (f_X(x_i)).   
+                \end{align}
+                Since the term on the right is the Riemann sum for the integral $-\int_{\reals} f_X(x) \log(f_X(x)) dx$ that defines the differential entropy of $X$, we get the required result by taking the limit $\Delta \downarrow 0$: 
+                \begin{align}
+                     \lim_{\Delta \downarrow 0} H(X_\Delta) + \log \Delta =  h(f_X). 
+                \end{align}
+            \end{proof}
+
+            \begin{remark}
+                \label{remark:quantized-entropy-1}
+                One interpretation of this above result is in terms of the number of bits needed to learn a $\Delta$-approximate version of a continuous random variable $X$. That is, to approximate a continuous random variable $X$, with an approximation error $\Delta$, we roughly need $\log(1/\Delta) + h(f_X)$ bits. For example, going back to our uniform example, to represent a uniform $[0,a]$ random variable with up to $\Delta$ error, we need $\log(a/\Delta)$ bits (exactly). 
+            \end{remark}
+
+            \begin{remark}
+                \label{remark:quantized-entropy-2} Another interpretation of the above result is via the AEP for the discrete and continuous entropies. For concreteness, let $X$ be a uniformly distributed over $\X=[0,a]$ random variable, and $X_\Delta$ is its $\Delta$-quantization. Then, we have the following two statements: 
+                \begin{itemize}
+                    \item AEP for the differential entropy says that (with probability almost $1$), the $n$ \iid realizations of $X$ are concentrated in a volume of $\approx 2^{n h(X)}$ within the space $\X^n$. 
+                    \item AEP for discrete entropy says that (with probability almost $1$) there are $\approx 2^{h H(X_\Delta)}$ equiprobable sequences of length $n$ in the quantized space $\X_\Delta^n$. 
+                \end{itemize}
+                Each point in $\X_\Delta^n$ denotes  a unique cube in $\X^n$, of volume $\Delta^n$. Hence, the total volume covered by the $2^{n H(X_\Delta)}$ sequences is $\approx \Delta^n 2^{n H(X_\Delta)}$. The result above says that the two volumes are approximately equal: that is, 
+                \begin{align}
+                    \Delta^n 2^{n H(X_\Delta)} \approx 2^{n h(X)}, \quad \text{ or } \quad  \log (\Delta) + H(X_\Delta) \approx h(X). 
+                \end{align}
+            \end{remark}
+
+            Unlike the entropy, the behavior of relative entropy and mutual information is stable under quantization. In fact, through informal arguments, we can see that the continuous relative entropy (and thus mutual information as well) can be seen as the limits of their quantized versions, as $\Delta \to 0$. 
+        
+    \section{General Distributions*}
+        \begin{fact}
+            \label{fact:radon-nikodym}
+            Consider a measurable space $(\X, \mc{F})$ with two $\sigma$-finite  measures $P$ and $Q$. Suppose that $P$ is absolutely continuous w.r.t. $Q$, denoted by $P \ll Q$, which means that $Q(E)=0 \Rightarrow P(E)=0$, for any $E \in \mc{F}$. Then, there exists a measurable function $f: \X \to [0, \infty)$, such that 
+            \begin{align}
+                P(E) = \int_{E} f dQ, \quad \text{for all } E \in \mc{F}. 
+            \end{align}
+            The (not necessarily unique) function $f$ is called the Radon-Nikodym derivative of $P$ w.r.t. $Q$, and is also denoted as $\frac{dP}{dQ}$.  
+        \end{fact}
+
+        \red{Chain rule for Radon-nikodym derivatives.}
+
+
+        Since we deal with probability measures, that are finite and hence $\sigma$-finite, the only condition required for the existence of the Radon-Nikodym derivative is the absolute continuity. Using this, we have the following general definition of relative entropy. 
+        \begin{definition}
+            \label{def:rel-ent-general} 
+            For any two distributions $P$ and $Q$, defined on a common measurable space $(\X, \mc{F})$, the relative entropy between $P$ and $Q$ is defined as 
+            \begin{align}
+                \dkl(P \parallel Q) \defined 
+                \begin{cases}
+                 \mathbb{E}_Q \lb \frac{dP}{dQ}(X) \log \frac{dP}{dQ}(X) \rb, & \quad \text{if } P\ll Q, \\
+                 + \infty, & \quad \text{if } P \not \ll Q.  
+                \end{cases}
+            \end{align}
+        \end{definition}
+
+        \begin{fact}
+            \label{fact:rel-ent-general-2}
+            An equivalent definition of the relative entropy between $P$ and $Q$, is 
+            \begin{align}
+                \dkl(P \parallel Q) \defined 
+                \begin{cases}
+                 \mathbb{E}_P \lb \log \frac{dP}{dQ}(X) \rb, & \quad \text{if } P\ll Q, \\
+                 + \infty, & \quad \text{if } P \not \ll Q.  
+                \end{cases}
+            \end{align}
+            See Lemma 2.4 of Polyanskiy and Wu for a proof. 
+        \end{fact}
+        \begin{definition}
+            \label{def:markov-kernel} Suppose $(\X, \F)$ and $(\Y, \G)$ denote two measurable spaces. Then, a Markov kernel from $\X$ to $\Y$ is a mapping $K:\G \times \X \to [0,1]$, such that 
+            \begin{itemize}
+                \item For every $x \in \X$, the mapping $K(\cdot, x): \G \to [0,1]$ is a probability measure on $(\Y, \G)$, 
+                \item For every $E \in \G$, the mapping $K(E, \cdot): \X \to [0,1]$ is $(\F, \mathbb{B}_{[0,1]})$-measurable. 
+            \end{itemize}
+        \end{definition}        
+
+        \begin{remark}
+            The Markov kernel can be interpreted as a random mapping form $\X$ to a probability measure on $(\Y, \G)$. Hence, we will often denote it with $P_{Y|X}$ --- that is, it defines a probability distribution of $Y$ for every realization of $X$.  For the special case of finite $\X$ and $\Y$,  the Markov kernel $K \equiv P_{Y|X}$ is simply the  transition probability matrix of size $|\X|\times |\Y|$. 
+        \end{remark}
+
+        \begin{fact}[Disintegration Theorem]
+            \label{fact:disintegration-theorem}
+            Suppose $P_{XY}$ is a joint distribution on $\X \times \Y$, and $\Y$ is standard Borel. Then, there exists a Markov kernel $K$, such that for any measurable $E \subset \X \times \Y$, we have 
+            \begin{align}
+                P_{XY}(E) = \int_{\X}P_X(dx) K(E^x|x), \quad \text{for } E^x \defined \{y \in \Y: (x,y) \in E_x\}. 
+            \end{align}
+        \end{fact}
+
+        We can now define the general version of conditional relative entropy, using the Markov kernel. 
+        \begin{definition}
+            \label{def:cond-rel-ent-general} Suppose $X$ is an $\X$-valued, and $Y$ is a $\Y$-valued random variable. Let $P_{XY}$ and $Q_{XY}$ denote two joint distributions of $(X, Y)$. Then, if $\Y$ is standard Borel (or `nice' in the language used by Durrett), then the conditional relative entropy between $P_{Y|X}$ and $Q_{Y|X}$ given $P_X$ is defined as 
+            \begin{align}
+                \dkl(P_{Y|X} \parallel Q_{Y|X} | P_X) = \mathbb{E}_{P_X}\lb \dkl\lp P_{Y|X}(\cdot, X) \parallel Q_{Y|X}(\cdot, X) \rp \rb. 
+            \end{align}
+        \end{definition}
+
+        \begin{remark}
+            Having defined relative entropy, and conditional relative entropy for general distributions, we can immediately use them to define mutual information and conditional mutual information. 
+        \end{remark}
+
+        Hence, the main summary of this section is that we can define the relative entropy can be defined for distributions on very general observation spaces (such as on manifolds, or on function spaces). From this definition, we can then obtain the definitions of differential entropy, and mutual information. 
+
+        \subsection{Variational Definition I: Gelfand-Yaglom-Perez} 
+        \label{subsec:var-def-I-gelfand} 
+            In this section, and the next, we present two \emph{variational definitions} of relative entropy for general probability distributions --- that is, we define relative entropy as the solution of an optimization problem. There are several benefits of such a representation: 
+            \begin{itemize}
+                \item several properties, such as convexity and lower semi-continuity, can be easily inferred, 
+                \item such representations easily allow us to get upper or lower bounds by considering specific values of the objective function being optimized. 
+            \end{itemize}
+
+            \begin{example}
+                \label{example:l1-norm}
+                 As a simple example, consider the $\ell_1$ norm of a vector: $\|\xvec\|_1 = \sum_{i=1}^d |x_i|$. It is easy to check that it can also be defined as follows: 
+                \begin{align}
+                    \|\xvec\|_1 = \sup_{y \in \reals^d: \|y\|_\infty \leq 1} \sum_{i=1}^d x_i y_i. 
+                \end{align}
+                The above definition immediately implies that the map $\xvec \mapsto \|\xvec\|_1$ is convex: since it is the supremum of linear functions. Furthermore, we also immediately observe that it is lower semi-continuous: since it is the supremum of continuous functions. Furthermore, by choosing any specific value of $\yvec$, we get a lower bound on the $\ell_1$ norm of $\xvec$.             
+            \end{example}
+
+            %%%%%%%%
+            We now present the first variational definition of relative entropy, which says that for general probability spaces, the relative entropy between two distributions is equal to the supremum of the relative entropy between quantized versions of the two distributions. In other words, for most purposes, analyzing the properties of relative entropy (and derived quantities, such as mutual information) for discrete distributions with finite support is without loss of generality. 
+        
+            \begin{theorem}
+                \label{thm:variational-rep-1}
+                Let $(\mc{X}, \mc{F})$ denote a measurable space, and let $P$ and $Q$ denote two probability measures on this space. Let $\mc{E} = \{E_1, E_2, \ldots, E_n\}$ denote a finite disjoint partition of $\mc{X}$, consisting of elements of $\mc{F}$. Then, we have  
+                \begin{align}
+                    \dkl(P, Q) = \sup_{\mc{E}} \sum_{E \in \mc{E}} P(E) \log \lp \frac{P(E)}{Q(E)} \rp = \sup_{\mc{E}}  \dkl \lp P_{\mc{E}} \parallel Q_{\mc{E}} \rp, 
+                \end{align}
+                where we have used $P_{\mc{E}}$ and $Q_{\mc{E}}$ to denote the quantized versions of $P$ and $Q$ over the partition $\mc{E}$. 
+            \end{theorem}
+
+            \begin{proof}
+                We will proof the equality by showing that both $\leq$ and $\geq$ simultaneously hold. The lower bound is an easy consequence of the DPI for relative entropy. In particular, let $\mc{E}$ denote a partition of $\X$ with $m$ elements $\{E_1, \ldots, E_m\}$. Let $f:\X \to [m]$ be a function defined as $f(x) = \sum_{i=1}^m i \boldsymbol{1}_{x \in E_i}$, and let $Y = f(X)$. Then, we have 
+                \begin{align}
+                    \dkl(P \parallel Q) \stackrel{(i)}{\geq} \dkl\lp P_Y \parallel Q_Y \rp = \dkl \lp P_{X, \mc{E}} \parallel Q_{X, \mc{E}} \rp, 
+                \end{align}
+                where $(i)$ follows from the DPI for relative entropy. Since $\mc{E}$ above was arbitrary, we can take a supremum over all such finite partitions to get the lower bound. 
+
+                Proving the other direction is more involved, and we proceed in the following steps: 
+
+                \paragraph{Step 1:} We begin by noting that without loss of generality, we can assume $P \ll Q$. Because, if $P \not \ll Q$, then both sides of the required equality are infinite. In particular, if $P \not \ll Q$, then there exists a measurable set $E$, such that $Q(E)=0$ but $P(E)>0$. Then, define $\mc{E} = \{E, E^c\}$, and observe that $\dkl( P_{\mc{E}} \parallel Q_{\mc{E}}) = \infty$. 
+
+                \paragraph{Step 2:} Since $P\ll Q$, there exists a measurable Radon-Nikodym derivative $X = dP/dQ$.  Since $\dkl(P \parallel Q) = \mathbb{E}_Q[\varphi(X)]$, for real valued sequence $c_n \to \infty$, we have $\dkl(P\parallel Q) = \lim_{c \to \infty} \mathbb{E}_Q[\varphi(X) \boldsymbol{1}_{X\leq c}]$ by the monotone convergence theorem~(MCT). 
+
+                \paragraph{Step 3:} Fix a $c>0$ and $\epsilon >0$, and let the integer $n$ denote $c/\epsilon$. Construct a partition $\mc{E} = \{E_0, \ldots, E_n\}$, where the sets $E_0$ through $E_n$ are defined as  
+                \begin{align}
+                    &E_j = \{\omega: j\epsilon \leq X(\omega) \leq (j+1)\epsilon \}, \text{ for } j=0, \ldots, n-1, \\
+                    \text{and} \quad 
+                    &E_n = \{\omega: X(\omega) \geq c\}. 
+                \end{align}
+                Using this partition, define a discrete approximation of $X$, as 
+                \begin{align}
+                    Y_n = \sum_{j=0}^{n-1} j \epsilon \boldsymbol{1}_{E_j}. 
+                \end{align}
+                Let $X_c = X \boldsymbol{1}_{X\leq c}$, and note that $Y_n \leq X_c$ and $|Y_n - X_c| \leq \epsilon$. 
+                Now, note that for a fixed $c<\infty$, the function $\varphi$ restricted to the domain $[0,c]$ is uniformly continuous. Hence, there exists a $\delta \equiv \delta(c, \epsilon)$, such that we have $|\varphi(Y_n) - \varphi(X_c)|\leq \delta$ almost surely. Furthermore, for a fixed $c$, the term $\delta$ goes to $0$ as $\epsilon \to 0$. 
+
+                The above uniform continuity result implies that 
+                \begin{align}
+                    \mathbb{E}_Q[\varphi(X_c)] - \delta \leq \mathbb{E}_Q[\varphi(Y_n)] = \sum_{j=0}^{n-1} Q(E_j) \varphi(j\epsilon).  \label{eq:variational-proof-1-1}
+                \end{align}
+                Now, we observe that 
+                \begin{align}
+                    \mathbb{E}_Q[j\epsilon] \leq \mathbb{E}_Q[X \boldsymbol{1}_{E_j}] = P(E_j) \leq \mathbb{E}_Q[ (j+1)\epsilon], 
+                \end{align}
+                which implies that 
+                \begin{align}
+                    j \epsilon  \leq \frac{P(E_j)}{Q(E_j)} \leq (j+1)\epsilon  \quad \text{or} \quad 
+                    \left \lvert \varphi\lp \frac{P(E_j)}{Q(E_j)} \rp - \varphi(j\epsilon) \right \rvert \leq \delta. 
+                \end{align}
+                Plugging this back into~\eqref{eq:variational-proof-1-1}, we get 
+                \begin{align}
+                     \mathbb{E}_Q[\varphi(X_c)] - \delta \leq \mathbb{E}_Q[\varphi(Y_n)] = \sum_{j=0}^{n-1} Q(E_j) \varphi\lp \frac{P(E_j)}{Q(E_j)}\rp + \delta = \dkl \lp P_{\mc{E}} \parallel Q_{\mc{E}} \rp + \delta.                    
+                \end{align}
+                To complete the proof, we take $\epsilon \to 0$ for a fixed $c$, and then take $c \to \infty$. 
+            \end{proof}
+
+            We record an immediate consequence of the above result. 
+            \begin{corollary}
+                % The following two conclusions are immediate from the above result: 
+                % \begin{align}
+                %     &\dkl(P, Q) \geq \dkl(P_{\mc{E}}, Q_{\mc{E}}), \quad \text{for any } \mc{E}.
+                % \end{align}
+                For any $\epsilon >0$, there exists a finite partition of $\X$, such that 
+                \begin{align}
+                    &\dkl(P, Q) - \epsilon \leq \dkl(P_{\mc{E}}, Q_{\mc{E}}). 
+                \end{align}
+            \end{corollary}
+            
+        \subsection{Variational Definition II: Donsker-Varadhan} 
+
+            We now present a functional variational representation of relative entropy, due to Donsker and Varadhan. 
+            \begin{theorem}
+                \label{thm:donsker-varadhan}
+                Consider a measurable space $(\X, \mc{F})$, with two probability measures $P$ and $Q$. Suppose $P \ll Q$, and let $\mc{C}_Q$ denote the set of measurable functions $f: \X \to \reals$, such that $\mathbb{E}_Q[e^f(X)]< \infty$. Then, we have 
+                \begin{align}
+                    \dkl(P\parallel Q) = \sup_{f \in \mc{C}_Q} \mathbb{E}_P[f(X)] - \log \lp  \mathbb{E}_Q[e^{f(X)}]\rp. 
+                \end{align}
+            \end{theorem}
+
+            \begin{proof}
+                As in the previous case, we prove this result in two steps to show that both the $\leq$ and $\geq$ hold.
+
+                First, we show that $\dkl(P\parallel Q)$ is an upper bound on the supremum. Without loss of generality, we assume that $P \ll Q$ and $\dkl(P \parallel Q)<\infty$.  For any $f \in \mc{C}_Q$, define the \emph{tilted} distribution $Q^f$, such that for any measurable $E$, we have 
+                \begin{align}
+                    Q^f(E) = \mathbb{E}_Q\lb e^{f(X)-Z_f} \boldsymbol{1}_E(X)\rb, \quad \text{where} \quad 
+                    Z_f = \log\lp \mathbb{E}_Q\lb e^{f(X)} \rb\rp. 
+                \end{align}
+                Now, observe that $Q^f \ll Q$, and 
+                \begin{align}
+                    \log \lp \frac{dQ^f}{dQ} \rp = f(X) - Z_f, 
+                \end{align}
+                which implies that 
+                \begin{align}
+                 \mathbb{E}_P\lb \log \lp \frac{dQ^f}{dQ} \rp    \rb &= \mathbb{E}_P[f(X)] - Z_f. 
+                \end{align}
+                Now, note that we also have $Q \ll Q^f$, which implies that $P \ll Q^f$. Hence, by the chain rule for Radon-Nikodym derivatives, we have $dQ^f/dQ = dQ^f/dP \times dP/dQ$, which leads to 
+                \begin{align}
+                    \mathbb{E}_P[f(X)] - Z_f &= \mathbb{E}_P\lb \log \lp \frac{dQ^f}{dP} \rp + \log \lp \frac{dP}{dQ} \rp  \rb = \dkl(P \parallel Q) - \dkl(P \parallel Q^f) \\
+                    & \leq \dkl(P \parallel Q). 
+                \end{align}
+                Since $f$ was an arbitrary element of $\mc{C}_Q$, this completes the proof of one side of the inequality. 
+
+                To show the other direction, we will rely on~\Cref{thm:variational-rep-1}. First, note that we can restrict our attention to $P\ll Q$. For otherwise, if $P \not \ll Q$, then there must exist an $E$ such that $Q(E)=0$, but $P(E)>0$. Then, define a function $f_c = c \boldsymbol{1}_E$, and note that it lies in $\mc{C}_Q$ for all values of $c \in \reals$. Then, we have 
+                \begin{align}
+                    \sup_{f \in \mc{C}_Q} \mathbb{E}_P[f(X)] - \log E_Q[e^{f(X)}] \geq \sup_{c > 0}  \mathbb{E}_P[f_c(X)] - \log E_Q[e^{f_c(X)}] = \sup_{c >0} c P(E) = \infty.
+                \end{align}
+                Now consider the case when $P \ll Q$. Then, consider any partition $\mc{E}$ of the domain, and define $f$ as 
+                \begin{align}
+                    f = \sum_{E \in \mc{E}} \log \lp \frac{P(E)}{Q(E)} \rp \boldsymbol{1}_E. 
+                \end{align}
+                For this function, the objective function is 
+                \begin{align}
+                    \mathbb{E}_P[f(X)] - \log \mathbb{E}_Q[e^{f(X)}] &= \sum_{E}P(E) \log \lp \frac{P(E)}{Q(E)} \rp - \log \lp \sum_{E\in E} Q(E) \frac{P(E)}{Q(E)} \rp \\
+                    & = \dkl \lp P_{\mc{E}} \parallel Q_{\mc{E}} \rp 
+                \end{align}
+                For all choices of the partition $\mc{E}$, the corresponding $f$ is still a simple function, and hence, it also belongs to $\mc{C}_Q$. Denoting the class of simple functions by $\mc{S}$, we then obtain 
+                \begin{align}
+                    \sup_{f \in \mc{C}_Q} \mathbb{E}_P[f(X)] - \log E_Q[e^{f(X)}] \geq 
+                    \sup_{f \in \mc{S}} \mathbb{E}_P[f(X)] - \log E_Q[e^{f(X)}]  \geq \sup_{\mc{E}} \dkl(P_{\mc{E}}, Q_{\mc{E}}). 
+                \end{align}
+                The last term is precisely the definition of $\dkl(P\parallel Q)$ from~\Cref{thm:variational-rep-1}. 
+            \end{proof}
+
+            Since mutual information between $(X,Y)$ is the relative entropy between the joint distribution and the product of marginals, we have the following corollary. 
+            \begin{corollary}
+                \label{corollary:mi-donsker-varadhan} 
+                For $(X, Y) \sim P_{XY}$ on $\X \times \Y$, let $\mc{C}$ denote the class of functions $\{f: \X \times \Y \to \reals: e^f \in L^1(P_X \times P_Y) \}$. Then, we have 
+                \begin{align}
+                    I(X;Y) = \sup_{f \in \mc{C}} \mathbb{E}_{P_{XY}}[f(X, Y)] - \log \mathbb{E}_{P_X \times P_Y} \lb e^{f(X, Y)} \rb. 
+                \end{align}
+            \end{corollary}
+
+            \paragraph{\red{Application:} Generalization bound in machine learning.}  In statistical learning theory, we are usually given a training dataset $S = (Z_1, \ldots, Z_n) \in \mc{Z}^n$ consisting on $n$ \iid training points drawn from a distribution $P$. A learning algorithm, $\mc{A}$, is a channel (or a Markov kernel) from $\mc{Z}^n$ to a `hypothesis class' $\mc{H}$. Given a loss function $\ell:\mc{H} \times \mc{Z} \to \reals$, we can define the population and empirical risk of a hypothesis $h \in \mc{H}$ as 
+            \begin{align}
+                L_P(h) = \mathbb{E}_{Z \sim P}[\ell(h, Z)],  \quad \text{and} \quad 
+                L_S(h) = \frac{1}{n} \sum_{Z_i \in S} \ell(h, Z_i). 
+            \end{align}
+            Now, let $H$ denote the possibly random output of a learning algorithm $\mc{A}$ on a training set $S$. Then, the generalization error of this algorithm is the expected difference between the test and training risk of $H$:
+            \begin{align}
+                \text{gen}(P, P_{H|S}) = \mathbb{E}\lb L_P(H) - L_S(H) \rb = \mathbb{E}\lb L_{S'}(H) - L_S(H) \rb, 
+            \end{align}
+            where $S'$ is an independent copy of $S$. Now, we can state the following bound over the generalization error. 
+            \begin{proposition}[Xu and Raginsky, 2016]
+                \label{prop:generalization-error} 
+                Suppose the loss function is such that $\ell(h, Z)$ is $\sigma^2$-subGaussian for all $h \in \mc{H}$. Then, we have 
+                \begin{align}
+                    \text{gen}(P, P_{H|S}) \leq \sqrt{ \frac{2 \sigma^2 I(S; H)}{n}}. 
+                \end{align}
+            \end{proposition}
+            \begin{proof}
+                To prove this result, we note the following: 
+                \begin{align}
+                    I(S; H) = \sup_{f} \mathbb{E}_{P_{SH}}[f(S, H)] - \log \mathbb{E}_{P_S \times P_H}\lb e^{f(S, H)} \rb. \label{eq:generalization-1}
+                \end{align}
+                To get the bound, we will select a specific $f(s, h) = \frac{1}{n} \sum_{z_i \in s} \ell(h, z_i)$, and note that $f$ is $(\sigma^2/n)$-subGaussian. Furthermore, note that the generalization error is equal to 
+                \begin{align}
+                    \text{gen}(P, P_{H|S}) = \mathbb{E}_{P_{SH}}\lb f(S, H) \rb - \mathbb{E}_{P_{S} \times P_{H}}[f(S', H')]. 
+                \end{align}
+                For any $\lambda \in \reals$, plugging  $\lambda f$ in~\eqref{eq:generalization-1}, we get 
+                \begin{align}
+                    I(S;H) &\geq \mathbb{E}_{P_{SH}}\lb \lambda f(S, H) \rb - \log \lp \mathbb{E}_{P_S \times P_H}\lb e^{\lambda f(S',H') - \mathbb{E}[\lambda f(S', H')]} \rb e^{\mathbb{E}[\lambda f(S',H')]} \rp \\
+                    & = \mathbb{E}_{P_{SH}}[\lambda f(S, H)] - \mathbb{E}_{P_{S}\times P_H}[\lambda f(S', H')] - \log \lp \mathbb{E}_{P_S \times P_H}\lb e^{\lambda f(S', H') - \mathbb{E}[\lambda f(S', H')]} \rb \rp \\
+                    & = \lambda \, \text{gen}(P, P_{H|S}) - \frac{\lambda^2 \sigma^2}{2n}. 
+                \end{align}
+                On optimizing for $\lambda$, we get 
+                \begin{align}
+                    I(S; H) \geq \sup_{\lambda} \lambda \, \text{gen}(P, P_{H|S}) - \frac{\lambda^2 \sigma^2}{2n}  = \frac{n \, \text{gen}^2(P, P_{H|S})}{2 \sigma^2}. 
+                \end{align}
+                On rearranging, we get the required 
+                \begin{align}
+                    \text{gen}(P, P_{H|S}) \leq \sqrt{ \frac{ 2 \sigma^2 I(S; H)}{n}}. 
+                \end{align}
+            \end{proof}
+            
+            
+            
+
+
+            
+    \section{$f$-divergences}
+        \begin{definition}
+            \label{def:f-divergence} Suppose $f:(0, \infty) \to \reals$ is a convex function with $f(1)=0$, and $f(0) \defined \lim_{x\to 0} f(x)$. Then, the $f$-divergence between two distributions $P$ and $Q$, with $P\ll Q$ is defined as 
+            \begin{align}
+                D_f(P\parallel Q) \defined 
+                    \mathbb{E}_{Q} \lb f\lp \frac{dP}{dQ}(X) \rp \rb, \quad \text{if } P \ll Q. 
+            \end{align}
+            For general $P$ and $Q$, let $\mu$ denote a common dominating measure~(such as $P+Q$), and $q = dQ/d\mu$ and $p = dP/d\mu$. Then, the $f$-divergence between $P$ and $Q$ is defined as 
+            \begin{align}
+                D_f(P \parallel Q) = \int_{q>0} q(x) f\lp \frac{p(x)}{q(x)} \rp d\mu + \mathbb{P}\lp q=0\rp \lim_{x \to \infty} x f(1/x).
+            \end{align}
+            If $\mathbb{P}(q=0)=0$, then the second term is assumed to be $0$, irrespective of $\lim_{x \to \infty}xf(1/x)$. 
+        \end{definition}
+
+        \begin{remark}
+            \label{remark:instances-of-f-div} 
+            The above definition unifies several popular statistical divergences, such as 
+            \begin{itemize}
+                \item Relative entropy, with $f(x) = x \log x$ 
+                \item Total variation, with $f(x) = \frac{1}{2}|x-1|$ 
+                \item Squared Hellinger distance, with $f(x) = (1-\sqrt{x})^2$
+                \item $\chi^2$-distance, with $f(x) = (x-1)^2$. 
+            \end{itemize}
+        \end{remark}
+        We can develop several properties of $f$-divergences, that parallel those for relative entropy: see~\citet[Chapter 7]{polyanskiy2023ITbook} for a thorough discussion. Here, we state an analog of~\Cref{thm:donsker-varadhan} for $f$-divergences on $\X = \mathbb{R}^d$.  
+        \begin{theorem}
+            Let $P \ll Q$ be two distributions on $\X = \mathbb{R}^d$, and furthermore assume that both $P$ and $Q$ admit densities ($p$, and $q$ respectively) w.r.t. the Lebesgue measure $\mu$. With $f^*$ denoting the convex-conjugate of $f$, we have the following variational representation of $D_f(P\parallel Q)$: 
+            \begin{align}
+                D_f(P\parallel Q) = \mathbb{E}_Q \lb f\lp \frac{dP}{dQ}(X) \rp \rb = \sup_{g:\X \to \reals} \mathbb{E}_P[g(X)] - \mathbb{E}_Q\lb f^*(g(X)) \rb, 
+            \end{align}
+            where $g$ is restricted to ensure that both expectations are finite. 
+        \end{theorem}
+        \begin{proof}
+            The proof follows directly from the definition of convex conjugates. First note that since $f$ is convex, we have $f = (f^*)^*$. Hence, for any $u \in (0, \infty)$, we have 
+            \begin{align}
+                f(u) = \sup_{v \in \reals} u v - f^*(v). 
+            \end{align}
+            Thus, with $u= p(x)/q(x)$, we have 
+            \begin{align}
+                f\lp \frac{p(x)}{q(x)} \rp = \sup_{v \in \reals} \frac{p(x) v}{q(x)} - f^*(v). 
+            \end{align}
+            For any function $g$, plugging the value of $v = g(x)$ above gives us a lower bound on $f(p(x)/q(x))$. Hence, for an arbitrary function $g$, we have 
+            \begin{align}
+                D_f(P \parallel Q) \geq \sup_{g } \int_{\X} q(x) \lp g(x) \frac{p(x)}{q(x)} - f^*(g(x)) \rp dx = \sup_{g} \mathbb{E}_P[g(X)]  - \mathbb{E}_Q[f^*(g(X))]. 
+            \end{align}
+            To show the other direction: fix an arbitrary $\epsilon >0$, and define $g_\epsilon$ as the function with values $g(x) = v_x$; where $v_x$ ensures $v_x p(x)/q(x)- f^*(v_x) \geq f(p(x)/q(x)) - \epsilon$. Plugging this in, we get 
+            \begin{align}
+                D_f(P \parallel Q)  \leq   \mathbb{E}_P[g_\epsilon(X)] - \mathbb{E}_Q[f^*(g_\epsilon(X))]  + \epsilon. 
+            \end{align}
+        \end{proof}
+
+
+        \paragraph{Application.} We will use $f$-divergences for constructing sequential tests in the second part of the course. 

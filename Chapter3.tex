@@ -1,0 +1,139 @@
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item Definition of a D-ary code 
+    \item Singular, Uniquely Decodable, Prefix Codes 
+    \item Krafts inequality for prefix codes, and UD codes 
+    \item Entropy as a lower bound on the codeword length 
+    \item Relative entropy as a measure of redundancy 
+    \item Achievability: Shannon Codes, SFE codes, Huffman code 
+    \item Doubling rate in gambling 
+    \item Value of side-information in gambling 
+    \item Portfolio optimization + Proportion (or Kelly) Betting 
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Source Codes}
+    
+    \begin{definition}
+        \label{def:source-codes}  A $D$-ary source code for symbols from an alphabet $\X$ is a mapping $C:\X \to \mc{D}^*$, where $\mc{D}^* = \cup_{m=1}^\infty \mc{D}^m$.  For any $x$, we refer to $C(x)$ as the codeword associated with $x$, and use $l(x)$ to denote its length. The average codeword length of an $\X$-valued random variable $X \sim P_X$, with the coding scheme $C$, is defined as $L_C(X) = \sum_{x \in \X} p_X(x) l(x)$. 
+
+        For any $k \geq 1$, the $k$-extension of $C$, is the mapping from $\X^k \to \mc{D}^*$ that assigns $x^k = (x_1, \ldots, x_k)$ to $C(x^k) = C(x_1)C(x_2)\ldots C(x_k)$. 
+    \end{definition}
+
+    \begin{definition}
+    \label{def:types-of-codes} We are interested mainly in the following three classes of codes: 
+      \begin{itemize}
+            \item We say a code $C$ is \emph{nonsingular}, if $x \neq x' \implies C(x) \neq C(x')$. 
+            \item We say a code $C$ is \emph{uniquely decodable}, if for all $k \geq 1$< the $k$ extension of $C$ is nonsingular. 
+            \item We say a code $C$ is \emph{instantaneously decodable}, if no codeword $C(x)$ is the prefix for another codeword $C(x')$. 
+        \end{itemize}
+    \end{definition}
+
+    \begin{remark}
+        \label{remark:types-of-codes-1}
+        Nonsingular codes cannot be applied in general to streams of symbols. Uniquely decodable codes may require waiting arbitrarily long before even one symbol can be decoded. Instantaneously decodable (or prefix) codes are self-punctuating, and hence they can be decoded on a per-symbol basis. 
+    \end{remark}
+
+
+\section{Kraft's Inequality} 
+\label{sec:kraft}
+    In this section, we will obtain a correspondence between probability distributions and compression schemes. In particular, we show that every prefix code~(in fact, every UD code) induces a probability distribution on the alphabet.
+
+    \begin{theorem}
+        \label{thm:kraft-prefix-1}  Suppose $\X$ is a countable alphabet, and $C$ denotes any binary prefix code with lengths $(l_i)_{i \geq 1}$. Then, we have 
+        \begin{align}
+            \sum_{i \geq 1} 2^{-l_i} \leq 1.  \label{eq:kraft-1}
+        \end{align}
+        Conversely, for any $(l_i)_{i \geq 1}$ satisfying~\eqref{eq:kraft-1}, we can construct a prefix code with these lengths. 
+    \end{theorem}
+    \begin{proof}
+        For any binary codeword $\boldsymbol{y}_i = (y_1, y_2, \ldots, y_{l_i}) \in \{0, 1\}^*$, we introduce the following mapping: 
+        \begin{align}
+            V(\boldsymbol{y}) = 0.y_1y_2 \ldots y_{l_i} = \sum_{j=1}^{l_i} y_j 2^{-j}.    
+        \end{align}
+        In words, $V$ assigns $\boldsymbol{y}_i$ to a real number in $[0, 1]$, whose binary representation is given by $0.\boldsymbol{y}_i$. Now, let $I(\boldsymbol{y}_i)$ denote the interval that consists of all binary sequences whose first $l_i$ bits are equal to $\boldsymbol{y}_i$. It is easy to verify that 
+        \begin{align}
+            I(\boldsymbol{y}_i) = \lb V(\boldsymbol{y}_i), V(\boldsymbol{y}_i) + 2^{-l_i} \rp.  
+        \end{align}
+        Next, we observe that since $C$ is a prefix code, no codeword is a prefix for another. This implies that 
+        \begin{align}
+            I(\boldsymbol{y}_i) \cap I(\boldsymbol{y}_j) = \emptyset, \quad \text{for } i \neq j. 
+        \end{align}
+        Since the length of each interval $I(\boldsymbol{y}_i)$ is equal to $2^{-l_i}$, and they are all contained in $[0, 1]$, the sum of their lengths must be upper bounded by $1$, as required. 
+
+        For the converse part, given $(l_i)_{i \geq 1}$ satisfying Kraft's inequality, we construct codewords as the binary representation of the lower endpoints of the following disjoint intervals: 
+        \begin{align}
+            I_i = \lb \sum_{j=1}^{i-1} 2^{-l_j}, \sum_{j=1}^{i} 2^{-l_j} \rp, \quad \text{for all } i \geq 1.  
+        \end{align}
+        The length of interval $I_i$ is equal to $2^{-l_i}$, which by assumption sums up to no larger than $1$. 
+    \end{proof}
+
+    Can we gain anything by considering uniquely decodable codes? The next result says no. 
+    \begin{theorem}
+        \label{thm:kraft-ud-1} 
+        Suppose $C$ is a uniquely decodable code over a countable alphabet $\X$, with lengths $(l_i)_{i \geq 1}$. Then, the lengths must satisfy Kraft's inequality. 
+
+        Furthermore, for any $(l_i)_{i \geq 1}$ satisfying Kraft's inequality, there exists a UD code over $\X$ with those lengths. 
+    \end{theorem}
+
+
+    \begin{proof}
+        If $C$ is a UD code for symbols from $\X$, then it is also a UD code for any finite subset $\X'$ of $\X$. Let $\X_N$ denote the subset of $\X$ consisting of its first $N$ elements. Then, note that 
+        \begin{align}
+            \sum_{x \in \X} 2^{-l(x)} = \lim_{N \to \infty} \sum_{x \in \X_N} 2^{-l(x)}. 
+        \end{align}
+        This means that it suffices to establish Kraft's inequality for an arbitrary finite $N$, since the bound follows by taking $N$ to infinity. 
+
+        Fix an $N< \infty$, and let $l_{\max} = \max_{x \in \X_N} l(x)$. Then, observe the following for an arbitrary $k \in \mathbb{N}$: 
+        \begin{align}
+            \lp \sum_{x \in \X_N} 2^{-l(x)} \rp ^k &= \sum_{x_1 \in \X_N} \sum_{x_2 \in \X_N}\ldots \sum_{x_k \in \X_N} 2^{- l(x_1)}2^{- l(x_2)} \ldots 2^{- l(x_k)} \\ 
+            & = \sum_{x^k \in \X_N^k} 2^{-l(x^k)} \\
+            & = \sum_{m=1}^{k l_{\max}} a(m) 2^{-m}, 
+        \end{align}
+        where $a(m)$ denotes the number of sequences in $\X_N^m$ that are assigned a codeword of length $m \in \{1, 2, \ldots, k l_{\max} \}$.  Next, we make the observation that $a(m) \leq 2^m$. This is because the code $C$ is assumed to be uniquely decodable, which means that each codeword in $\{0, 1\}^m$ is assigned to at most one element of $\X_N^*$. This implies that $a(m)  2^{-m} \leq 1$, and thus 
+        \begin{align}
+            &\lp \sum_{x \in \X_N} 2^{-l(x)} \rp^{k} \leq k l_{\max} \\
+            \implies & \sum_{x \in \X_N} 2^{-l(x)} \leq k^{1/k} l_{\max}^{1/k}. 
+        \end{align}
+        The above inequality is true for all values of $k \geq 1$, and hence, by taking the limit of $k \to \infty$, we get 
+        \begin{align}
+            \sum_{x \in \X_N} 2^{-l(x)} \leq \lim_{k \to \infty} (k l_{\max})^{1/k} = 1. 
+        \end{align}
+        Since $N$ was arbitrary, we can then conclude that 
+        \begin{align}
+            \sum_{x \in \X}2^{-l(x)} = \lim_{N \to \infty} \sum_{x \in \X_N} 2^{-l(x)} \leq 1. 
+        \end{align}
+    \end{proof}
+
+    
+\section{Lower Bound and SFE coding}
+
+
+    \paragraph{Entropy as a lower bound on average codeword length.}  We now observe that for a random variable $X \sim P_X$ taking  values on the alphabet $\X$,  the average codeword length for any uniquely decodable code $C$ is lower bounded by the entropy of $X$. 
+
+    \begin{theorem}
+        \label{thm:source-coding-theorem} Suppose $X \sim P_X$ is a random variable taking values in a countable alphabet $\X$. If $C$ is any uniquely decodable coding scheme for $X$, then, we have 
+        \begin{align}
+            L_C(X) = \sum_{x \in \X} p(x) l(x) \geq H(X) = \sum_{x \in \X} p(x) \log(1/p(x)). 
+        \end{align}
+    \end{theorem}   
+    \begin{proof}
+        Since $C$ is uniquely decodable, it satisfies Kraft's inequality. Thus, the term $A = \sum_{x \in \X} 2^{-l(x)}$ is less than or equal to $1$. Define the probability distribution $R$ over $\X$, with \pmf $r(x) = 2^{-l(x)}/A$. Then, we have the following: 
+        \begin{align}
+            L_C(X) - H(X) &= \sum_{x \in \X} p(x) l(x) - \sum_{x \in \X} p(x) \log(1/p(x))\\
+            & = \sum_{x \in \X} p(X) \log \lp \frac{p(x)}{2^{-l(x)}} \rp  \\
+            & = \sum_{x \in \X} p(x) \log \lp \frac{p(X)}{r(X)} \rp + \sum_{x \in \X} p(X) \log(1/A)  \\
+            & = \dkl(P_X \parallel R) - \log(1/A) \geq \dkl(P_X \parallel R) \geq 0. 
+        \end{align}
+        In the last inequality we used the nonnegativity of relative entropy, while in the second-last inequality, we used the fact that $A \leq 1$ for uniquely decodable codes. 
+    \end{proof}
+    The proof of the above result also tells us when the optimal bound is achieved: if $A=1$, and $P_X = R$. 
+
+    \paragraph{Typical Set Coding.} We saw an example of a lossless compression scheme which achieves close to the optimal compression rate in~\Cref{remark:aep-1}. However, that scheme is mainly a theoretical construction, and is not feasible for practical compression tasks due to its exponential complexity. 
+
+    \paragraph{Shannon Fano Elias Coding.} We now present a practical compression scheme that achieves the optimal compression rate for large block lengths. 
+
+\section{Gambling, Doubling Rate} 
+\label{sec:gambling}
+
+\section{Portfolio Optimization + Kelly Betting}

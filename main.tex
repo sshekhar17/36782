@@ -1,0 +1,43 @@
+\documentclass{book}
+\usepackage{graphicx} % Required for inserting images
+
+\input{preamble}
+\input{newMacros}
+
+\title{Lecture Notes on Information Theory and Statistics}
+\author{Shubhanshu Shekhar}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{The Basics}
+    \chapter{Information measures for discrete distributions}
+        \input{Chapter1}
+    
+    \chapter{Information measures for general distributions}
+        \input{Chapter2}
+    
+    \chapter{Compression and Gambling}
+        \input{Chapter3}    
+
+    \chapter{Universal Compression and Gambling}
+        \input{Chapter4}
+    
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Applications}
+
+    \chapter{Application I: From Universal Compression to Sequential Inference}
+    \input{Application1}
+
+    
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\bibliographystyle{abbrvnat}
+\bibliography{ref}
+\end{document}
