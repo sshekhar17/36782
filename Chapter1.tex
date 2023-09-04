@@ -368,7 +368,7 @@
         The above results imply that mutual information $I(X; Y)$ serves as a measure of dependence between the two random variables, and its value ranges from $0$ (for $X \perp Y$)  to $H(X)$~(when $X = Y$). 
         
         \subsection{An application: generating purely random bits}
-            Even with the elementary properties we have seen so far, we can obtain non-trivial results about important practical applications, such as the task of generating purely random bits (i.e., fair coin tosses) from bet coins. 
+            Even with the elementary properties we have seen so far, we can obtain non-trivial results about important practical applications, such as the task of generating purely random bits (i.e., fair coin tosses) from bent coins. 
             % 
             \begin{question}
                 \label{question:radom-bits} Suppose $X \sim \text{Bernoulli}(p)$ with $p \in [0,1]$ unknown:  that is, $X$ denotes the outcome of a \emph{bent} coin. Can we use this bent coin to obtain a fair coin toss $Y \sim \text{Bernoulli}(1/2)$? 
@@ -703,8 +703,6 @@
                 is well-defined and is called the \emph{channel capacity} associated with the channel $\{p_{Y|X=x} : x \in \X\}$. 
             \end{remark}
 
-            % \paragraph{Applications:} The convexity of relative entropy plays an important role in several applications. For example, given $(X_1, Y_1), (X_2, Y_2), \ldots \sim P\times Q$  let $\hatP_n$ and $\hatQ_n$ denote the empirical version of $P$ and $Q$ based on the first $n$ observations. Then, using the convexity of relative entropy, it can be easily proved that $\{\dkl(\hatP_n \parallel \hatQ_n) - \dkl(P\parallel Q): n \geq 1\}$ is a reverse submartingale with respect to the exchangeable filtration. Hence, by an application of Ville's inequality for reverse sub
-            
             \subsection{Data Processing Inequality.}
                 In this section we look at a class of inequalities called that \emph{data processing inequalities}. Informally, these results tell us that we cannot increase the information contained in a  signal~($Y$)  about another unknown signal ($X$) by processing $Y$. 
                 \begin{theorem}
