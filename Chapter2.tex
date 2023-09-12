@@ -285,6 +285,68 @@
         \subsection{Applications}
         \label{subsec:applications-continuous}
             We now look at some simple applications of the properties of continuous information measures. 
+
+       \paragraph{Maximum Entropy distributions.} Staying with the theme of maximum entropy distributions, we show a general method for characterizing the distributions achieving the optimal entropy under different types of constraints. 
+        
+        Let $\mc{F}$ denote a class of densities on $\X = \reals$ satisfying $m$ integral constraints: 
+        \begin{itemize}
+            \item $f(x) \geq 0$, for all $x \in S$, with equality outside $S$. 
+            \item $\int_S f(x) dx = 1$. 
+            \item $\int_S f(x) r_i(x)dx = \alpha_i$, for $1 \leq i \leq m$. 
+        \end{itemize}
+        Our next result characterizes the distribution from $\mc{F}$ achieving the maximum entropy. 
+        \begin{proposition}
+            \label{prop:max-entropy} The density $f^* \in \mc{F}$ achieving the maximum entropy is of the form $f^*(x) = \exp \lp \lambda_0 + \sum_{i=1}^m \lambda_i r_i(x) \rp$ for all $x \in S$, for some real-valued terms $\{\lambda_i: 0 \leq i \leq m\}$, chosen to ensure $f^*$ satisfies the constraints.  
+        \end{proposition}
+
+        \begin{proof}
+            We will use a slightly informal ``guess and verify'' strategy to prove this result. In particular, note that entropy is a concave functional of the densities, and the domain is convex. Hence, we can write the Lagrangian as 
+            \begin{align}
+                L(f) = - \int f \log f + \lambda_0 \int f + \sum_{i=1}^m \int f r_i.   
+            \end{align}
+            The proper way to proceed now is to take the functional derivative of $J$ with respect to $f$.  Instead, we present an informal argument. Suppose we write the integrals as approximate Riemann sums. That is, we consider a grid of width $\Delta$ partitioning the domain $\X$, and write 
+            \begin{align}
+                L(f) \approx - \sum_{j \in \mathbb{Z}} f(x_j) \log(f(x_j)) \Delta + \lambda_0 \sum_{i \in \mathbb{Z}} f(x_j) \Delta + \sum_{i=1}^m  \sum_{j \in \mathbb{Z}} f(x_j) r_i(x_j) \Delta. 
+            \end{align}
+            Now, we can consider $L(f)$ as a function of the variables $\{y_j = f(x_j): j \in \mathbb{Z} \}$. So taking the (usual) derivative of $L(f)$ with $y_j = f(x_j)$, and setting it to $0$,  we get 
+            \begin{align}
+                \frac{dL(f)}{dy_j} = \Delta \lp  - \log(f(x_j)) - 1 + \lambda_0 + \sum_{i=1}^m f(x_j) r_i(x_i)  \rp  = 0. 
+            \end{align}
+            The above equation suggests a solution of the form 
+            \begin{align}
+                f(x) = \exp \lp -1 + \lambda_0 + \sum_{i=1}^m \lambda_i r_i(x) \rp. 
+            \end{align}
+            Now, constraints give us $(m+1)$ equations in $(m+1)$ unknowns $(\lambda_i)_{i=0}^m$, and we can solve this linear system to construct a candidate solution $f^*$ of the above form, satisfying all the constraints. 
+
+
+            Having informally justified the form of the candidate solution $f^*$, we now provide an information theoretic proof of its optimality. Let $g$ denote any element of $\mc{F}$. Then, we have 
+            \begin{align}
+                h(g) = - \int_{S} g \log g = - \int_S g \log(g/f^*) - \int_{S} g \log f^* = -\dkl(g\parallel f^*) - \int_S g\log f^*. 
+            \end{align}
+            Since $f^*$ is supported on the entire $S$, the above operation is valid. Due to the nonnegativity of relative entropy, the above result implies that 
+            \begin{align}
+                h(g) \leq - \int_S g \log f^*. 
+            \end{align}
+            If the integral on the right side were with respect to the density $f^*$, we would have obtained the required inequality. Nevertheless, we exploit the specific form of $f^*$ to show the required inequality: 
+            \begin{align}
+                -\int g \log f^* &= - \int g \lp \lambda_0 + \sum_{i=1}^m \lambda_i r_i \rp = -\lambda_0 \int_S g  - \sum_{i=1}^m \lambda_i \int_S g r_i \\
+                & \stackrel{(i)}{=}  -\lambda_0 \int_S f^*  - \sum_{i=1}^m \lambda_i \int_S f^* r_i \\ 
+                & = - \int_S f^* \log f^* = h(f^*). 
+            \end{align}
+             The equality $(i)$ follows from the fact that both $g$ and $f^*$ are elements of $\mc{F}$, and thus they satisfy the required constraints. 
+        \end{proof}
+        \begin{example}
+            \label{example:max-entropy} The previous result can be used to characterize the max-entropy distribution in various settings. 
+            \begin{itemize}
+                \item $S=[a, b]$, and no other constraints. Then, the optimal distribution has the form $f^*(x) = e^{\lambda_0}$; that is, the max-ent distribution is the uniform distribution. 
+                \item Suppose $S=\reals$, and the constraints are $\mathbb{E}[X] = 0$ and $\mathbb{E}[X^2]=\sigma^2$. Then, the optimal density has the form $f^*(x) = \exp \lp \lambda_0 + \lambda_1 x + \lambda_2 x^2 \rp$. It is easy to verify that this is a Gaussian distribution with mean $0$ and variance $\sigma^2$. 
+                \item Suppose $S = [0, \infty)$, and the only constraint is $\mathbb{E}[X] = \mu$. Then, the optimal distribution is of the form $f^*(x) = \exp (\lambda_0 + \lambda_1 x)$, which turns out to be the exponential distribution with parameter $\mu$. That is, $f^*(x) = (1/\mu)e^{-x/\mu}$.  
+                \item Suppose $S=[0, \infty)$, and the constraints are $\mathbb{E}[X]=\alpha_1$ and $\mathbb{E}[\log X] = \alpha_2$. Then, the optimal distribution has the form $f^*(x) = \exp \lp \lambda_0 + \lambda_1 x + \lambda_2 log(x) \rp = x^{\lambda_2} \exp \lp \lambda_0 + \lambda_1 x \rp$. This is the family of Gamma distributions.  
+
+                \item For $S = \reals^d$, and the constraint that $E[X_i]=0$ for all $i\in [d]$, and $\mathbb{E}[X_i X_j] = K_{ij}$, where $K \equiv [K_{ij}]$ is a positive semi-definite matrix, a similar argument shows that the distribution achieving the maximum entropy is $N(0, K)$. 
+            \end{itemize}
+        \end{example}
+
             
             \paragraph{Determinant Inequalities.} The properties of continuous information measures, especially for Gaussian distributions, can be used to obtain elementary proofs of several nontrivial matrix inequalities. 
             \begin{proposition}
@@ -376,64 +438,37 @@
         \end{proof}
 
 
-        \paragraph{Maximum Entropy distributions.} We now show that by using 
-        
-        Let $\mc{F}$ denote a class of densities on $\X = \reals$ satisfying $m$ integral constraints: 
-        \begin{itemize}
-            \item $f(x) \geq 0$, for all $x \in S$, with equality outside $S$. 
-            \item $\int_S f(x) dx = 1$. 
-            \item $\int_S f(x) r_i(x)dx = \alpha_i$, for $1 \leq i \leq m$. 
-        \end{itemize}
-        Our next result characterizes the distribution from $\mc{F}$ achieving the maximum entropy. 
+        \paragraph{Bounding the entropy of discrete distribution.} We end with one final application of~\Cref{prop:max-ent-1}. For the case of discrete distributions with finite support, we know that the entropy is upper bounded by $\log(|\X|)$. However, this bound is not applicable when the support of a discrete random variable is countable. We now show how to use the max entropy continuous distribution to obtain a non-vacuous upper bound on the entropy of  a discrete distribution with countable support. 
+
         \begin{proposition}
-            \label{prop:max-entropy} The density $f^* \in \mc{F}$ achieving the maximum entropy is of the form $f^*(x) = \exp \lp \lambda_0 + \sum_{i=1}^m \lambda_i r_i(x) \rp$ for all $x \in S$, for some real-valued terms $\{\lambda_i: 0 \leq i \leq m\}$, chosen to ensure $f^*$ satisfies the constraints.  
+            \label{prop:diff-ent-bound-on-discrete}
+            Let $\mc{X} = \{x_i: i \in \mathbb{N}\}$ denote a countable alphabet, and let $X$ be an $\mc{X}$-valued random variable with $\mathbb{P}(X=x_i)=p_i$ for $i \in \mathbb{N}$. Then, we have 
+        \begin{align}
+            H(X) = H(p_1, p_2, \ldots) &\leq \frac{1}{2} \log \lp (2\pi e) \times \lp \sum_{i=1}^{\infty} p_i i^2 - \lp \sum_{i=1}^{\infty} i p_i \rp^2 + \frac{1}{12} \rp \rp. 
+        \end{align}
         \end{proposition}
 
         \begin{proof}
-            We will use a slightly informal ``guess and verify'' strategy to prove this result. In particular, note that entropy is a concave functional of the densities, and the domain is convex. Hence, we can write the Lagrangian as 
-            \begin{align}
-                L(f) = - \int f \log f + \lambda_0 \int f + \sum_{i=1}^m \int f r_i.   
-            \end{align}
-            Assuming we can differentiate the above, and set it to zero, we get 
-            \begin{align}
-                \frac{dL(f)}{df(x)} = - \log(f(x)) - 1 + \lambda_0 + \sum_{i=1}^n \lambda_i r_i(x) = 0,   
-            \end{align}
-            which suggests a solution of the form 
-            \begin{align}
-                f(x) = \exp \lp -1 + \lambda_0 + \sum_{i=1}^m \lambda_i r_i(x) \rp. 
-            \end{align}
-            Now, constraints give us $(m+1)$ equations in $(m+1)$ unknowns $(\lambda_i)_{i=0}^m$, and we can solve this linear system to construct a candidate solution $f^*$ of the above form, satisfying all the constraints. 
+            Introduce a new random variable $Y$, such that $\mathbb{P}(Y=i) = p_i$. Note that $H(Y) = H(X)$, since the discrete entropy is independent of the actual values taken by the random variable. Now, let $U$ denote a Uniform~$([0,1])$ random variable, and use it to define $Z = Y + U$. 
+            We can verify that $Z$ is a continuous random variable with a density $f_Z(x) = p_i$, where $i = \lfloor x \rfloor$. 
 
-
-            Having informally justified the form of the candidate solution $f^*$, we now provide an information theoretic proof of its optimality. Let $g$ denote any element of $\mc{F}$. Then, we have 
+            Now, the discrete entropy of $Y$ is equal to 
             \begin{align}
-                h(g) = - \int_{S} g \log g = - \int_S g \log(g/f^*) - \int_{S} g \log f^* = -\dkl(g\parallel f^*) - \int_S g\log f^*. 
+                H(X) = H(Y) &= -\sum_{i \in \mathbb{N}} p_i \log p_i = \sum_{i \in \mathbb{N}} \int_{i}^{i+1} f_Z(x) \log \lp f_Z(x) \rp dx  \\
+                & = -\int_{\reals} f_Z(x) \log(f_Z(x)) dx \\
+                & = h(Z). 
             \end{align}
-            Since $f^*$ is supported on the entire $S$, the above operation is valid. Due to the nonnegativity of relative entropy, the above result implies that 
+            Note that since $X$ and $U$ are independent, the variance of $Z$ is equal to $\var(Y) + \var(U)$. Thus the differential entropy of $h(Z)$ is upper bounded by that of a zero mean Gaussian with the same variance. Hence, we have 
             \begin{align}
-                h(g) \leq - \int_S g \log f^*. 
+                &H(X) = h(Z) \leq \frac{1}{2} \log \lp (2\pi e) \var(Z) \rp, \quad \text{where} \\
+                & \var(Z) = \var(Y) + \var(U) = \sum_{i} i^2 p_i - \lp \sum_{i} i p_i \rp^2 + \frac{1}{12}. 
             \end{align}
-            If the integral on the right side were with respect to the density $f^*$, we would have obtained the required inequality. Nevertheless, we exploit the specific form of $f^*$ to show the required inequality: 
-            \begin{align}
-                -\int g \log f^* &= - \int g \lp \lambda_0 + \sum_{i=1}^m \lambda_i r_i \rp = -\lambda_0 \int_S g  - \sum_{i=1}^m \lambda_i \int_S g r_i \\
-                & \stackrel{(i)}{=}  -\lambda_0 \int_S f^*  - \sum_{i=1}^m \lambda_i \int_S f^* r_i \\ 
-                & = - \int_S f^* \log f^* = h(f^*). 
-            \end{align}
-             The equality $(i)$ follows from the fact that both $g$ and $f^*$ are elements of $\mc{F}$, and thus they satisfy the required constraints. 
         \end{proof}
-        \begin{example}
-            \label{example:max-entropy} The previous result can be used to characterize the max-entropy distribution in various settings. 
-            \begin{itemize}
-                \item $S=[a, b]$, and no other constraints. Then, the optimal distribution has the form $f^*(x) = e^{\lambda_0}$; that is, the max-ent distribution is the uniform distribution. 
-                \item Suppose $S=\reals$, and the constraints are $\mathbb{E}[X] = 0$ and $\mathbb{E}[X^2]=\sigma^2$. Then, the optimal density has the form $f^*(x) = \exp \lp \lambda_0 + \lambda_1 x + \lambda_2 x^2 \rp$. It is easy to verify that this is a Gaussian distribution with mean $0$ and variance $\sigma^2$. 
-                \item Suppose $S = [0, \infty)$, and the only constraint is $\mathbb{E}[X] = \mu$. Then, the optimal distribution is of the form $f^*(x) = \exp (\lambda_0 + \lambda_1 x)$, which turns out to be the exponential distribution with parameter $\mu$. That is, $f^*(x) = (1/\mu)e^{-x/\mu}$.  
-                \item Suppose $S=[0, \infty)$, and the constraints are $\mathbb{E}[X]=\alpha_1$ and $\mathbb{E}[\log X] = \alpha_2$. Then, the optimal distribution has the form $f^*(x) = \exp \lp \lambda_0 + \lambda_1 x + \lambda_2 log(x) \rp = x^{\lambda_2} \exp \lp \lambda_0 + \lambda_1 x \rp$. This is the family of Gamma distributions. 
-            \end{itemize}
-            
-        \end{example}
+
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     \section{General Distributions*}
+        In this section, we present the general definition of relative entropy. To state the definition, we need to recall the Radon-Nikodym theorem. 
         \begin{fact}
             \label{fact:radon-nikodym}
             Consider a measurable space $(\X, \mc{F})$ with two $\sigma$-finite  measures $P$ and $Q$. Suppose that $P$ is absolutely continuous w.r.t. $Q$, denoted by $P \ll Q$, which means that $Q(E)=0 \Rightarrow P(E)=0$, for any $E \in \mc{F}$. Then, there exists a measurable function $f: \X \to [0, \infty)$, such that 
@@ -441,10 +476,15 @@
                 P(E) = \int_{E} f dQ, \quad \text{for all } E \in \mc{F}. 
             \end{align}
             The (not necessarily unique) function $f$ is called the Radon-Nikodym derivative of $P$ w.r.t. $Q$, and is also denoted as $\frac{dP}{dQ}$.  
+            If $P \ll Q$ and $Q \ll P$, we have 
+            \begin{align}
+                \frac{dP}{dQ} = \lp \frac{dQ}{dP} \rp^{-1}. 
+            \end{align}
+            Finally, if $P \ll Q$ and $Q \ll R$, then we have 
+            \begin{align}
+                \frac{dP}{dR} = \frac{dP}{dQ} \times \frac{dQ}{dR}. 
+            \end{align}
         \end{fact}
-
-        \red{Chain rule for Radon-Nikodym derivatives.}
-
 
         Since we deal with probability measures, that are finite and hence $\sigma$-finite, the only condition required for the existence of the Radon-Nikodym derivative is the absolute continuity. Using this, we have the following general definition of relative entropy. 
         \begin{definition}
@@ -485,7 +525,7 @@
 
         \begin{fact}[Disintegration Theorem]
             \label{fact:disintegration-theorem}
-            Suppose $P_{XY}$ is a joint distribution on $\X \times \Y$, and $\Y$ is standard Borel. Then, there exists a Markov kernel $K$, such that for any measurable $E \subset \X \times \Y$, we have 
+            Suppose $P_{XY}$ is a joint distribution on $\X \times \Y$, and $\Y$ is standard Borel~(complete separable metric space with the Borel sigma-algebra). Then, there exists a Markov kernel $K$, such that for any measurable $E \subset \X \times \Y$, we have 
             \begin{align}
                 P_{XY}(E) = \int_{\X}P_X(dx) K(E^x|x), \quad \text{for } E^x \defined \{y \in \Y: (x,y) \in E_x\}. 
             \end{align}
@@ -503,7 +543,11 @@
             Having defined relative entropy, and conditional relative entropy for general distributions, we can immediately use them to define mutual information and conditional mutual information. 
         \end{remark}
 
-        Hence, the main summary of this section is that we can define the relative entropy can be defined for distributions on very general observation spaces (such as on manifolds, or on function spaces). From this definition, we can then obtain the definitions of differential entropy, and mutual information. 
+        \begin{remark}
+            All the properties that we proved for the relative entropy of discrete or continuous random variables are also valid for the general setting considered here. These properties include the nonnegativity, convexity, and the DPI. 
+        \end{remark}
+        
+        The main summary of this section is that we can define the relative entropy can be defined for distributions on very general observation spaces (such as on manifolds, or on function spaces). In particular, the differential entropy of a random variable  $X$ can be recovered as the relative entropy of $P_X$ and an appropriate invariant measure, such as the Lebesgue measure for $\X = \reals^d$. 
 
         \subsection{Variational Definition I: Gelfand-Yaglom-Peres} 
         \label{subsec:var-def-I-gelfand} 
@@ -604,9 +648,15 @@
             \end{theorem}
 
             \begin{proof}
-                As in the previous case, we prove this result in two steps to show that both the $\leq$ and $\geq$ hold.
 
-                First, we show that $\dkl(P\parallel Q)$ is an upper bound on the supremum. Without loss of generality, we assume that $P \ll Q$ and $\dkl(P \parallel Q)<\infty$.  For any $f \in \mc{C}_Q$, define the \emph{tilted} distribution $Q^f$, such that for any measurable $E$, we have 
+                First, note that we can restrict our attention to $P\ll Q$. For otherwise, if $P \not \ll Q$, then there must exist an $E$ such that $Q(E)=0$, but $P(E)>0$. Then, define a function $f_c = c \boldsymbol{1}_E$, and note that it lies in $\mc{C}_Q$ for all values of $c \in \reals$. Then, we have 
+                \begin{align}
+                    \sup_{f \in \mc{C}_Q} \mathbb{E}_P[f(X)] - \log E_Q[e^{f(X)}] \geq \sup_{c > 0}  \mathbb{E}_P[f_c(X)] - \log E_Q[e^{f_c(X)}] = \sup_{c >0} c P(E) = \infty.
+                \end{align}
+
+                Hence, we can assume that $P \ll Q$ for the rest of the proof. 
+                As in the previous case, we prove the result in two steps to show that both the $\leq$ and $\geq$ hold.
+                For any $f \in \mc{C}_Q$, define the \emph{tilted} distribution $Q^f$, such that for any measurable $E$, we have 
                 \begin{align}
                     Q^f(E) = \mathbb{E}_Q\lb e^{f(X)-Z_f} \boldsymbol{1}_E(X)\rb, \quad \text{where} \quad 
                     Z_f = \log\lp \mathbb{E}_Q\lb e^{f(X)} \rb\rp. 
@@ -619,17 +669,23 @@
                 \begin{align}
                  \mathbb{E}_P\lb \log \lp \frac{dQ^f}{dQ} \rp    \rb &= \mathbb{E}_P[f(X)] - Z_f. 
                 \end{align}
-                Now, note that we also have $Q \ll Q^f$, which implies that $P \ll Q^f$. Hence, by the chain rule for Radon-Nikodym derivatives, we have $dQ^f/dQ = dQ^f/dP \times dP/dQ$, which leads to 
+                Next, we note that we also have $Q \ll Q^f$. To see why this is true, suppose there exists an $E$ such that $Q^f(E)=0$, but $Q(E) >0$. Define $A_0 = \{ e^{f(X)-Z_f} \geq 1\} \cap E$, and for $i \geq 1$, define $A_i = \{ e^{f(X) - Z_f} \in (1/(i+1), 1/i]\} \cap E$. Then, we have $A_i \cap A_j = \emptyset$ for $i \neq j$, and furthermore, $E = \cup_{i=0}^{\infty} A_i$. Due to the countable additivity, we have $Q(E) = \sum_{i=0}^{\infty} Q(A_i)$, which means that there must exist an $n$, such that $Q(A_n)>0$. This implies that
                 \begin{align}
-                    \mathbb{E}_P[f(X)] - Z_f &= \mathbb{E}_P\lb \log \lp \frac{dQ^f}{dP} \rp + \log \lp \frac{dP}{dQ} \rp  \rb = \dkl(P \parallel Q) - \dkl(P \parallel Q^f) \\
-                    & \leq \dkl(P \parallel Q). 
+                    0 = Q^f(E) = \sum_{i=0}^{\infty} Q^f(A_i) \geq \sum_{i=0}^{\infty} \frac{Q(A_i)}{i+1} \geq \frac{Q(A_n)}{n+1} > 0, 
+                \end{align}
+                which is a contradiction. Hence, we have proved that $Q \ll Q^f$, which in turn implies that $P \ll Q^f$, and hence $dP/dQ^f$ is well defined
+
+                
+                Now, let $G$ denote the set $\{ dP/dQ > 0\}$ and note that $\mathbb{E}_P[\log(dQ^f/dQ)] = \mathbb{E}_P[\log(dQ^f/dQ) \boldsymbol{1}_G]$. Introduce the probability measures $\Qtilde$ and $\Qtilde^f$, such that $\Qtilde(E) = Q(E \cap G)$, and $\Qtilde^f(E) = \Qtilde(E \cap G)$. Then, we can write 
+                \begin{align}
+                    \mathbb{E}_P \lb \log \lp \frac{dQ^f}{dQ}\rp  \rb &= \mathbb{E}_P \lb \log \lp \frac{dQ^f}{dQ}\rp \boldsymbol{1}_{G}  \rb =  \mathbb{E}_P \lb \log \lp \frac{d\Qtilde^f}{dP} \frac{dP}{d\Qtilde} \rp \boldsymbol{1}_{G}  \rb  \\
+                    & =   \mathbb{E}_P \lb \log \lp  \frac{dP}{d\Qtilde} \rp \boldsymbol{1}_{G}  \rb  - \mathbb{E}_P \lb \log \lp  \frac{dP}{d\Qtilde^f} \rp \boldsymbol{1}_{G}  \rb  \\
+                     & =   \mathbb{E}_P \lb \log \lp  \frac{dP}{dQ} \rp   \rb  - \mathbb{E}_P \lb \log \lp  \frac{dP}{dQ^f} \rp   \rb  \\                   
+                     & = \dkl(P \parallel Q) - \dkl(P \parallel Q^f) \leq \dkl(P \parallel Q). 
                 \end{align}
                 Since $f$ was an arbitrary element of $\mc{C}_Q$, this completes the proof of one side of the inequality. 
 
-                To show the other direction, we will rely on~\Cref{thm:variational-rep-1}. First, note that we can restrict our attention to $P\ll Q$. For otherwise, if $P \not \ll Q$, then there must exist an $E$ such that $Q(E)=0$, but $P(E)>0$. Then, define a function $f_c = c \boldsymbol{1}_E$, and note that it lies in $\mc{C}_Q$ for all values of $c \in \reals$. Then, we have 
-                \begin{align}
-                    \sup_{f \in \mc{C}_Q} \mathbb{E}_P[f(X)] - \log E_Q[e^{f(X)}] \geq \sup_{c > 0}  \mathbb{E}_P[f_c(X)] - \log E_Q[e^{f_c(X)}] = \sup_{c >0} c P(E) = \infty.
-                \end{align}
+                To show the other direction, we will rely on~\Cref{thm:variational-rep-1}. 
                 Now consider the case when $P \ll Q$. Then, consider any partition $\mc{E}$ of the domain, and define $f$ as 
                 \begin{align}
                     f = \sum_{E \in \mc{E}} \log \lp \frac{P(E)}{Q(E)} \rp \boldsymbol{1}_E. 
@@ -647,6 +703,14 @@
                 The last term is precisely the definition of $\dkl(P\parallel Q)$ from~\Cref{thm:variational-rep-1}. 
             \end{proof}
 
+            \begin{remark}
+                \label{remark:DV-approximation-1} A simple consequence of the above result is that if $\dkl(P \parallel Q)$ is small, then we should expect $\mathbb{E}_P[f(X)]$ to be well approximated by $\mathbb{E}_Q[f(X)]$. To see why, note that $e^{x} \approx 1 + x$ and $\log(1 + x) \approx x$ for small enough $x$. Thus choosing any function $f \in \mc{C}_Q$, we have 
+                \begin{align}
+                    \dkl(P \parallel Q) \geq \mathbb{E}_P[f(X)] - \log \lp \mathbb{E}_Q[e^{f(X)}] \rp \approx \mathbb{E}_P[f(X)] - \log \lp 1 +  \mathbb{E}_Q[f(X)] \rp  \approx \mathbb{E}_P[f(X)] - \mathbb{E}_Q[f(X)]. 
+                \end{align}
+                Thus, a small value of $\dkl(P \parallel Q)$ implies that the expected values of $f(X)$ under $P$ and $Q$ must be close to each other. 
+            \end{remark}
+            
             Since mutual information between $(X,Y)$ is the relative entropy between the joint distribution and the product of marginals, we have the following corollary. 
             \begin{corollary}
                 \label{corollary:mi-donsker-varadhan} 
@@ -684,8 +748,9 @@
                 \end{align}
                 For any $\lambda \in \reals$, plugging  $\lambda f$ in~\eqref{eq:generalization-1}, we get 
                 \begin{align}
-                    I(S;H) &\geq \mathbb{E}_{P_{SH}}\lb \lambda f(S, H) \rb - \log \lp \mathbb{E}_{P_S \times P_H}\lb e^{\lambda f(S',H') - \mathbb{E}[\lambda f(S', H')]} \rb e^{\mathbb{E}[\lambda f(S',H')]} \rp \\
-                    & = \mathbb{E}_{P_{SH}}[\lambda f(S, H)] - \mathbb{E}_{P_{S}\times P_H}[\lambda f(S', H')] - \log \lp \mathbb{E}_{P_S \times P_H}\lb e^{\lambda f(S', H') - \mathbb{E}[\lambda f(S', H')]} \rb \rp \\
+                    I(S;H) &\geq \mathbb{E}_{P_{SH}}\lb \lambda f(S, H) \rb - \log \lp \mathbb{E}_{P_S \times P_H}\lb e^{\lambda f(S',H')} \rb  \rp \\
+                    & \geq \mathbb{E}_{P_{SH}}\lb \lambda f(S, H) \rb - \log \lp \exp \lp \frac{\lambda^2 \sigma^2}{2n} + \lambda \mathbb{E}_{P_S \times P_H}[f(S', H') \rp  \rp \\
+                    & = \mathbb{E}_{P_{SH}}[\lambda f(S, H)] - \mathbb{E}_{P_{S}\times P_H}[\lambda f(S', H')] - \frac{\lambda^2 \sigma^2}{2n} \\
                     & = \lambda \, \text{gen}(P, P_{H|S}) - \frac{\lambda^2 \sigma^2}{2n}. 
                 \end{align}
                 On optimizing for $\lambda$, we get 
@@ -697,6 +762,20 @@
                     \text{gen}(P, P_{H|S}) \leq \sqrt{ \frac{ 2 \sigma^2 I(S; H)}{n}}. 
                 \end{align}
             \end{proof}
+            Now, suppose $h^*$ denotes the element of $\mc{H}$ that achieves the minimum expected loss. How does $\mathbb{E}[L_P(H)]$ compare with $L_P(h^*)$? To analyze this, note that
+            \begin{align}
+                \mathbb{E}[L_P(H)] \leq \text{gen}(P, P_{H|S}) + \mathbb{E}_{P_{SH}} \lb L_S(H) \rb. 
+            \end{align}
+            Hence, on subtracting $L_S(h^*)$ on both sides, and using~\Cref{prop:generalization-error}, we get 
+            \begin{align}
+                \mathbb{E}[L_P(H)] - L_P(h^*) \leq \sqrt{\frac{2 \sigma^2 I(S; H)}{n}} + \mathbb{E}_{P_{SH}} \lb L_S(H) - L_S(h^*)\rb. 
+            \end{align}
+            Consider the following two cases: 
+            \begin{itemize}
+                \item If $|\mc{H}|<\infty$, then we can upper bound $I(S; H)$ with $H(H) \leq \log(|\mc{H}|)$. 
+                \item More generally, suppose we consider an appropriate $\epsilon$-covering set of $\mc{H}$, denoted by $|\mc{H}_{\epsilon}|$. Then, we can bound $I(S; H)$ with $\log(|\mc{H}_{\epsilon}|)$, which recovers the metric entropy bound. 
+            \end{itemize}
+            Note that if $H$ is selected by an empirical risk minimization~(ERM) method, the second term on the RHS is upper bounded by $0$. 
             
             
             
@@ -718,6 +797,13 @@
         \end{definition}
 
         \begin{remark}
+            \label{remark:discrete-f-div} For discrete distributions, we have the following simple definition of $f$-divergences: 
+            \begin{align}
+                D_f(P \parallel Q) = \sum_{x \in \X} Q(x) f\lp \frac{P(x)}{Q(x)} \rp. \label{eq:discrete-f-div}
+            \end{align}
+        \end{remark}
+
+        \begin{remark}
             \label{remark:instances-of-f-div} 
             The above definition unifies several popular statistical divergences, such as 
             \begin{itemize}
@@ -727,7 +813,71 @@
                 \item $\chi^2$-distance, with $f(x) = (x-1)^2$. 
             \end{itemize}
         \end{remark}
-        We can develop several properties of $f$-divergences, that parallel those for relative entropy: see~\citet[Chapter 7]{polyanskiy2023ITbook} for a thorough discussion. Here, we state an analog of~\Cref{thm:donsker-varadhan} for $f$-divergences on $\X = \mathbb{R}^d$.  
+        We can develop several properties of $f$-divergences, that parallel those for relative entropy: see~\citet[Chapter 7]{polyanskiy2023ITbook} for a thorough discussion. Below, we state and prove the nonnegativity, convexity, and DPI for $f$-divergences. 
+        % 
+        \begin{proposition}
+            \label{prop:f-div-properties} For any convex $f:[0, \infty]$, with $f(1) = 0$, and $f(0) \defined \lim_{x \downarrow 0} f(x)$, we have 
+            \begin{enumerate}[label=(\alph*)]
+                \item $D_f(P\parallel Q) \geq 0$, for all $P, Q$. Furthermore, if $f$ is strictly convex, then the equality holds only for $P=Q$. 
+                \item $D_f(P_{XY} \parallel Q_{XY} ) \geq D_f(P_X \parallel Q_X)$. 
+                \item The mapping $(P, Q) \mapsto D_f(P \parallel Q)$ is convex.  
+                \item Suppose $P_{XY} = P_X \times P_{Y|X}$ and $Q_{XY} = Q_X \times P_{Y|X}$. Then, we have the following data-processing inequality:
+                \begin{align}
+                    D_f(P_Y \parallel Q_Y) \leq D_f(P_X \parallel Q_X). 
+                \end{align}
+           \end{enumerate}
+        \end{proposition}
+        % 
+        \begin{proof}
+            We will prove the statements under the simplifying assumption that $P_{XY} \ll Q_{XY}$. 
+            \begin{enumerate}[label=(\alph*)]
+                \item The result follows from a direct application of Jensen's inequality. In particular, we have 
+                \begin{align}
+                    D_f(P \parallel Q) = \mathbb{E}_Q\lb f\lp \frac{dP}{dQ}(X) \rp \rb \geq f\lp \mathbb{E}_Q\lb \frac{dP}{dQ}(X) \rb \rp = f(1) = 0. 
+                \end{align}
+                If $f$ is not affine, then the equality holds only if $dP/dQ$ is a constant $Q$-almost-surely. 
+                \item For simplicity, we will prove this monotonicity result for the simple case of discrete distributions. 
+                \begin{align}
+                    D_f(P_{XY} \parallel Q_{XY}) &= \sum_{x, y} q(x, y) f\lp \frac{p(x,y)}{q(x,y)} \rp  = \sum_{x \in \X} q(x) \sum_{y \in \Y} q(y|x) f\lp \frac{p(x) p(y|x)}{q(x) q(y|x)} \rp  \\
+                    & \geq \sum_{x \in \X} q(x) f \lp \sum_{y \in \Y} q(y|x) \frac{p(x) p(y|x)}{q(x) q(y|x)} \rp  \\ 
+                    & \geq \sum_{x \in \X} q(x) f \lp \frac{p(x)}{q(x)} \sum_{y \in \Y} p(y|x) \rp  = \sum_{x \in \X} q(x) f\lp \frac{p(x)}{q(x)} \rp = D_f(P_X \parallel Q_X). 
+                \end{align}
+                \item The proof of this result uses the monotonicity. In particular, let $P_0, P_1$ and $Q_0, Q_1$ denote two pairs of distributions. Now, let $X \sim \text{Bernoulli}(\lambda)$ for some $\lambda \in [0,1]$. Then, define the following joint distributions ($P_{XY}$ and $Q_{XY}$): 
+                \begin{align}
+                    P_{Y|X=0} = P_0, \quad P_{Y|X=1} = P_1, \quad \text{and} \quad Q_{Y|X=0} = Q_0, \quad Q_{Y|X=1} = Q_1. 
+                \end{align}
+                Then, by the monotonicity result, we have 
+                \begin{align}
+                    D_f(P_{XY} \parallel Q_{XY}) &= \barlambda \sum_{y} Q_0(y) f \lp \frac{\barlambda P_0(y)}{\barlambda P_1(y)} \rp  + \lambda \sum_{y} Q_1(y) f\lp \frac{\lambda P_1(y)}{\lambda Q_1(y)} \rp \\
+                    & \geq D_f(P_Y \parallel Q_Y) \\
+                    & = D_f \lp \barlambda P_0 + \lambda P_1 \parallel \barlambda Q_0 + \lambda Q_1 \rp. 
+                \end{align}
+                \item Again, we prove this in the simple setting of discrete distribution. By monotonicity, we know that 
+                \begin{align}
+                    D_f(P_{Y} \parallel Q_Y) \leq D_f(P_{XY} \parallel Q_{XY}). 
+                \end{align}
+                Note that since the conditional distributions $P_{Y|X}$ and $Q_{Y|X}$ are the same~(i.e., the marginals $P_X$ and $P_Y$ are passed through the same channel), we have 
+                \begin{align}
+                    D_f(P_{XY} \parallel Q_{XY}) &= \sum_{x \in \X}q(x) \sum_{y \in \Y} q(y|x) f \lp \frac{p(x) p(y|x)}{q(x)q(y|x)} \rp  \\
+                    &= \sum_{x \in \X}q(x)  \sum_{y \in \Y} q(y|x)  f \lp \frac{p(x)}{q(x)} \rp \\
+                    &= \sum_{x \in \X}q(x) f \lp \frac{p(x)}{q(x)} \rp \sum_{y \in \Y} q(y|x)   = D_f(P_X \parallel Q_X). 
+                \end{align}
+            \end{enumerate}
+        \end{proof}
+        
+        
+        As for the case of relative entropy, we can obtain the analogs of the two variational definitions for $f$-divergences as well. 
+
+        \begin{theorem}
+            \label{thm:f-div-var-def-1}   Let $P$ and $Q$ be any two probability measures defined on some measurable space $(\X, \mc{F})$. For any finite disjoint partition of $\X$, denoted by $\mc{E} = \{E_i \in \mc{F}: 1 \leq i \leq n\}$, let $P_{\mc{E}}$ and $Q_{\mc{E}}$ denote the discrete distributions with pmfs $\{P(E): E \in \mc{E}\}$ and $\{Q(E): E \in \mc{E}\}$. Then, we have the following: 
+            \begin{align}
+                D_f(P \parallel Q) = \sup_{\mc{E}} D_f(P_{\mc{E}} \parallel Q_{\mc{E}})  = \sup_{\mc{E}} \sum_{E \in \mc{E}} Q(E) f\lp \frac{P(E)}{Q(E)} \rp. 
+            \end{align}
+        \end{theorem}
+        The proof of this statement follows the general argument used in proving~\Cref{thm:variational-rep-1} for the analogous result for relative entropy. We refer the reader to~\citet[\S~7.14]{polyanskiy2023ITbook} for details. 
+        
+        
+        Next, we state and prove an analog of~\Cref{thm:donsker-varadhan} for $f$-divergences on $\X = \mathbb{R}^d$.  
         \begin{theorem}
             Let $P \ll Q$ be two distributions on $\X = \mathbb{R}^d$, and furthermore assume that both $P$ and $Q$ admit densities ($p$, and $q$ respectively) w.r.t. the Lebesgue measure $\mu$. With $f^*$ denoting the convex-conjugate of $f$, we have the following variational representation of $D_f(P\parallel Q)$: 
             \begin{align}
@@ -754,5 +904,77 @@
             \end{align}
         \end{proof}
 
+        \begin{example}[$\chi^2$-divergence]
+            \label{example:chi-squared-variational-def} Recall that $\chi^2$ distance corresponds to $f(x) = (x-1)^2$. The convex conjugate of this function is equal to $f^*(u) = u^2/4 + u =  (u/2 + 1)^2 - 1$. To see this, note that 
+            \begin{align}
+                f^*(u) = \sup_{v \in \reals} uv - (v-1)^2 = sup_{v \in \reals} g(v)
+            \end{align}
+            Note that $g$ is a concave function, and $g'(v) = u - 2(v-1)$. Hence, its optimal value is achieved at $v^* = 1 + u/2$, and is equal to 
+            \begin{align}
+                f^*(u) = u \lp \frac{u}{2} + 1 \rp - \frac{u^2}{4} = \frac{u^2}{4} + u = \lp \frac{u}{2} + 1 \rp^2- 1. 
+            \end{align}
+            Plugging this into the variational definition of $f$-divergences, we get 
+            \begin{align}
+                \chi^2(P\parallel Q) &= \sup_{g} \mathbb{E}_P[g(X)] - \mathbb{E}_Q\lb \lp \frac{g(X)}{2} + 1 \rp^2 \rb + 1  \\
+                & = \sup_{g} 2 \mathbb{E}_P \lb \lp \frac{g(X)}{2} +1 \rp \rb - \mathbb{E}_Q \lb \lp \frac{g(X)}{2} + 1 \rp^2 \rb - 1 \\
+                & = \sup_{h} 2 \mathbb{E}_P[h(X)] - \mathbb{E}_Q[h^2(X)] - 1, 
+            \end{align}
+            where in the last inequality, we used the change of variable $h(x) \leftarrow g(x)/2 + 1$. 
 
-        \paragraph{Application.} We will use $f$-divergences for constructing sequential tests in the second part of the course. 
+            Note that the above variational definition is not scale-invariant, and we can replace $h(\cdot)$ with an arbitrary $\lambda h(\cdot)$, to get 
+            \begin{align}
+                \chi^2(P \parallel Q) = \sup_{h, \lambda} 2 \lambda \mathbb{E}_P[h(X)] - \lambda^2 \mathbb{E}_Q[h^2(X)] - 1. 
+            \end{align}
+            On optimizing over $\lambda$, we get the following, more interpretable, definition 
+            \begin{align}
+                \chi^2(P \parallel Q) = \sup_{h } \frac{\lp \mathbb{E}_P[h(X)] - \mathbb{E}_Q[h(X)] \rp^2}{\var_Q\lp h(X) \rp }. 
+            \end{align}
+            That is, two distributions $P$ and $Q$ are distinguishable in $\chi^2$-divergence, if there exists a function $h$, for which the the absolute difference in means under $P$ and $Q$ is much larger than the standard deviation of $h(X)$ under $Q$. 
+        \end{example}
+
+        \paragraph{\red{Application}: Estimation error bounds.} Let us consider an estimation problem in the simplest case, where the parameter set $\Theta$ is a subset of $\reals$. Now, let $\theta$ denote the true parameter, $X \sim P_{\theta}$, and $\thetahat = \thetahat(X)$ is some estimate of $\theta$ based on $X$. That is, we have the Markov chain $\theta \rightarrow X \rightarrow \thetahat$. 
+        \begin{proposition}[Hammersley-Chapman-Robbins]
+        \label{prop:hammersley}
+             In the setting described above, the expected squared error of any estimator $\thetahat$ satisfies 
+            \begin{align}
+                \mathbb{E}_{\theta} [(\theta - \thetahat)^2] \geq \var_{\theta}(\thetahat) \geq \sup_{\theta' \neq \theta} \frac{ \lp \mathbb{E}_{\theta}[\thetahat(X)] -  \mathbb{E}_{\theta'}[\thetahat(X)]\rp^2}{\chi^2\lp P_{\theta'} \parallel P_{\theta} \rp}.  
+            \end{align}           
+        \end{proposition}
+        % 
+        \begin{proof}
+            This result follows by a simple application of the DPI for $f$-divergences, and the variational definition of $\chi^2$-divergence obtained in~\Cref{example:chi-squared-variational-def}. In particular, let $\theta' \in \Theta$ such that $\theta' \neq \theta$. Then, with $P_X = P_{\theta'}$ and $Q_X=P_{\theta}$, we have
+            \begin{align}
+             \chi^2\lp P_X \parallel Q_X  \rp \stackrel{(i)}{\geq}   \chi^2\lp P_{\thetahat} \parallel Q_{\thetahat}  \rp \stackrel{(ii)}{\geq} \frac{ \lp \mathbb{E}_{\theta}[\thetahat] - \mathbb{E}_{\theta'}[\thetahat] \rp^2}{\var_{\theta}(\thetahat)},  
+            \end{align}
+            where $(i)$ is due to the data-processing inequality, and $(ii)$ is due to the variational representation of $\chi^2$-divergence with $h(x) = x$.  On rearranging, we get 
+            \begin{align}
+                \var_{\theta}(\thetahat) \geq \frac{ \lp \mathbb{E}_{\theta}[\thetahat] - \mathbb{E}_{\theta'}[\thetahat] \rp^2}{\chi^2(P_{\theta'} \parallel P_{\theta})}.   
+            \end{align}
+            As $\theta' \neq \theta$ is an arbitrary element of $\Theta$, the result follows by taking a supremum over all such $\theta'$. 
+        \end{proof}
+        % 
+        \begin{corollary}[Cramer-Rao lower bound]
+            \label{corollary:cramer-rao} Suppose that the distributions $\{P_{\theta}: \theta \in \Theta \subset \reals\}$ admit densities (w.r.t. Lebesgue measure) that are twice continuously differentiable. If we restrict our attention to unbiased $\thetahat$, then~\Cref{prop:hammersley} implies the following: 
+            \begin{align}
+                \mathbb{E}_{\theta}[(\thetahat-\theta)^2] = \var_{\theta}(\thetahat) \geq \frac{1}{J_F(\theta)}, \quad \text{where} \quad J_F(\theta) = \mathbb{E}_{\theta}\lb \lp \frac{\partial \log(p_{\theta}(X))}{\partial \theta} \rp^2\rb. 
+            \end{align}
+        \end{corollary}
+        \begin{proof}
+            The conclusion follows from a fact about $\chi^2$-distance that 
+            \begin{align}
+                \chi^2(P_{\theta'} \parallel P_{\theta}) = J_F(\theta) (\theta - \theta')^2 + o\lp (\theta - \theta')^2 \rp. 
+            \end{align}
+            To see why this is true, consider the definition of $\chi^2$-divergence between $P_{\theta'}$ and $P_{\theta'}$ 
+            \begin{align}
+                \chi^2(P_{\theta'} \parallel P_{\theta}) = \int_{\reals} p_{\theta}(x) \lp \frac{p_{\theta'}(x)}{p_{\theta}(x)} - 1 \rp^2 dx = \int_{\reals} \frac{\lp p_{\theta'}(x) - p_{\theta}(x) \rp^2}{p_{\theta}(x)} dx. 
+            \end{align}
+            Now, by a Taylor' expansion around $p_{\theta}(x)$, we have 
+            \begin{align}
+                p_{\theta'}(x) = p_{\theta}(x) + \dot{p}_{\theta}(x) (\theta' - \theta) + o \lp |\theta'-\theta| \rp. 
+            \end{align}
+            Plugging this approximation back into the definition of $\chi^2(P_{\theta'} \parallel \theta)$, we get that 
+            \begin{align}
+                \chi^2(P_{\theta'} \parallel P_{\theta}) = (\theta' - \theta)^2 \int \frac{\dot{p}_{\theta}^2(x)}{p_{\theta}(x)} dx   + o\lp (\theta'-\theta)^2 \rp. 
+            \end{align}
+        \end{proof}
+
