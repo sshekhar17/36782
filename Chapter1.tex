@@ -421,7 +421,7 @@
                    
         \section{Properties of Information Measures}
 
-            \subsection{Chain Rules.} We begin by establishing the chain rules for the three information measures. These results decompose the information measures for a collection of random variables into a sum of simpler terms. 
+            \subsection{Chain Rules} We begin by establishing the chain rules for the three information measures. These results decompose the information measures for a collection of random variables into a sum of simpler terms. 
             
             \begin{theorem}[Chain rule for entropy]
                 \label{thm:chain-rule-ent}
@@ -584,7 +584,7 @@
             
             
 %===============================================================================            
-            \subsection{Convexity/Concavity.}
+            \subsection{Convexity/Concavity}
            
             We begin with a simple consequence of the convexity of the mapping $x \mapsto x \log x$, that will be useful in establishing some properties of information measures. 
                 \begin{proposition}
@@ -707,7 +707,7 @@
                 In this section we look at a class of inequalities called that \emph{data processing inequalities}. Informally, these results tell us that we cannot increase the information contained in a  signal~($Y$)  about another unknown signal ($X$) by processing $Y$. 
                 \begin{theorem}
                     \label{thm:dpi-mi}
-                    Suppose $X \rightarrow Y \rightarrow Z$ for a Markov chain; that is, $X \perp Z | Y$. Then, we have 
+                    Suppose $X \rightarrow Y \rightarrow Z$ form a Markov chain; that is, $X \perp Z | Y$. Then, we have 
                     \begin{align}
                         I(X; Z) \leq I(X; Y), \quad \text{and} \quad I(X; Z) \leq I(Y;Z). 
                     \end{align}
@@ -719,7 +719,7 @@
                     \begin{align}
                         I(X; Z) = H(X) - H(X|Z) = H(Z) - H(Z|X). 
                     \end{align}
-                    Since conditioning reduces entropy, we have $H(X|Z) \leq H(X|Z, Y)$. Furthermore, due to the Markov property, $X \perp Z|Y$, which means that $H(X|Z, Y) = H(X|Y)$. This implies that 
+                    Since conditioning reduces entropy, we have $H(X|Z) \geq H(X|Z, Y)$. Furthermore, due to the Markov property, $X \perp Z|Y$, which means that $H(X|Z, Y) = H(X|Y)$. This implies that 
                     \begin{align}
                         I(X;Z) = H(X) - H(X|Z) \leq H(X) - H(X|Z, Y) = H(X) - H(X|Y) = I(X; Y). 
                     \end{align}

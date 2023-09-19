@@ -720,7 +720,7 @@
                 \end{align}
             \end{corollary}
 
-            \paragraph{\red{Application:} Generalization bound in machine learning.}  In statistical learning theory, we are usually given a training dataset $S = (Z_1, \ldots, Z_n) \in \mc{Z}^n$ consisting on $n$ \iid training points drawn from a distribution $P$. A learning algorithm, $\mc{A}$, is a channel (or a Markov kernel) from $\mc{Z}^n$ to a `hypothesis class' $\mc{H}$. Given a loss function $\ell:\mc{H} \times \mc{Z} \to \reals$, we can define the population and empirical risk of a hypothesis $h \in \mc{H}$ as 
+            \paragraph{\red{Application:} Generalization bound in machine learning.}  In statistical learning theory, we are usually given a training dataset $S = (Z_1, \ldots, Z_n) \in \mc{Z}^n$ consisting of $n$ \iid training points drawn from a distribution $P$. A learning algorithm, $\mc{A}$, is a channel (or a Markov kernel) from $\mc{Z}^n$ to a `hypothesis class' $\mc{H}$. Given a loss function $\ell:\mc{H} \times \mc{Z} \to \reals$, we can define the population and empirical risk of a hypothesis $h \in \mc{H}$ as 
             \begin{align}
                 L_P(h) = \mathbb{E}_{Z \sim P}[\ell(h, Z)],  \quad \text{and} \quad 
                 L_S(h) = \frac{1}{n} \sum_{Z_i \in S} \ell(h, Z_i). 

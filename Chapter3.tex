@@ -1,43 +1,84 @@
 %%%%%%%%%%%%%%%%%%%%%%
-\begin{itemize}
-    \item Definition of a D-ary code 
-    \item Singular, Uniquely Decodable, Prefix Codes 
-    \item Krafts inequality for prefix codes, and UD codes 
-    \item Entropy as a lower bound on the codeword length 
-    \item Relative entropy as a measure of redundancy 
-    \item Achievability: Shannon Codes, SFE codes, Huffman code 
-    \item Doubling rate in gambling 
-    \item Value of side-information in gambling 
-    \item Portfolio optimization + Proportion (or Kelly) Betting 
-\end{itemize}
+% \begin{itemize}
+%     \item Definition of a D-ary code 
+%     \item Singular, Uniquely Decodable, Prefix Codes 
+%     \item Krafts inequality for prefix codes, and UD codes 
+%     \item Entropy as a lower bound on the codeword length 
+%     \item Relative entropy as a measure of redundancy 
+%     \item Achievability: Shannon Codes, SFE codes, Huffman code 
+%     \item Doubling rate in gambling 
+%     \item Value of side-information in gambling 
+%     \item Portfolio optimization + Proportion (or Kelly) Betting 
+% \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%
+    In this chapter, we introduce the problem of compression, or source coding, where the goal is to assign sequences (often binary) to represent symbols drawn from a known probabilistic source in the most efficient (i.e., with smallest average length) manner. We establish that entropy of a distribution characterizes the fundamental limit as the optimal compression rate; which can be achieved by coding schemes that assign shorter codewords to more probable symbols. A major theme in this chapter is the equivalence between compression, and probability assignment. This connection is formalized through Kraft-Macmillan's Lemma in one direction~(from codewords to probability distributions), and through the Shannon-Fano-Elias coding scheme in the other direction (from probability to codewords). Interestingly, the probability assignment viewpoint also leads to surprising connections between compression and gambling on horse races, and we end the chapter with a discussion on this. 
 
-\section{Source Codes}
+    Throughout this chapter we will focus on distributions over a discrete alphabet with countable support, denoted by $\X$. The task of compression then reduces to mapping elements of $\X$ to sequences of another $D$-ary alphabet $\mc{D}$. Often, we will set $\mc{D} = \{0, 1\}$, and focus on binary source codes. Accordingly, most of the logarithms in this chapter will be to the base $2$~(some might be to the base $D \geq 2$). 
     
+\section{Source Codes}
+    We begin with a formal definition of source codes. 
     \begin{definition}
         \label{def:source-codes}  A $D$-ary source code for symbols from an alphabet $\X$ is a mapping $C:\X \to \mc{D}^*$, where $\mc{D}^* = \cup_{m=1}^\infty \mc{D}^m$.  For any $x$, we refer to $C(x)$ as the codeword associated with $x$, and use $l(x)$ to denote its length. The average codeword length of an $\X$-valued random variable $X \sim P_X$, with the coding scheme $C$, is defined as $L_C(X) = \sum_{x \in \X} p_X(x) l(x)$. 
 
         For any $k \geq 1$, the $k$-extension of $C$, is the mapping from $\X^k \to \mc{D}^*$ that assigns $x^k = (x_1, \ldots, x_k)$ to $C(x^k) = C(x_1)C(x_2)\ldots C(x_k)$. 
     \end{definition}
+    \begin{example}
+        \label{example:source-codes-1} Suppose $\X = \{x_1, x_2, x_3, x_4\}$, and $P_X = (1/2, 1/4, 1/8, 1/8)$. Consider the binary coding scheme that assigns the codewords: 
+        \begin{align}
+            C(x_1) = 0, \quad C(x_2) = 10, \quad C(x_3) = 110, \quad C(x_4) = 111. 
+        \end{align}
+        The average codeword length, $L_{C}$, of this coding scheme is $1.75$, which is also equal to the entropy of the distribution $P_X$. 
+    \end{example}
+    Most practical applications involve encoding large blocks or streams of symbols (think of a text document as a large block of letters and punctuation marks). After obtaining a compressed representation, we want the ability to reconstruct (or decode) the original block of symbols in a lossless manner. This requirement imposes certain constraints on the coding schemes, and we formally describe the nested class of schemes (with increasingly stronger constraints).   
+    % 
 
+    % 
     \begin{definition}
     \label{def:types-of-codes} We are interested mainly in the following three classes of codes: 
       \begin{itemize}
             \item We say a code $C$ is \emph{nonsingular}, if $x \neq x' \implies C(x) \neq C(x')$. 
-            \item We say a code $C$ is \emph{uniquely decodable}, if for all $k \geq 1$< the $k$ extension of $C$ is nonsingular. 
+            \item We say a code $C$ is \emph{uniquely decodable}, if for all $k \geq 1$, the $k$ extension of $C$ is nonsingular. 
             \item We say a code $C$ is \emph{instantaneously decodable}, if no codeword $C(x)$ is the prefix for another codeword $C(x')$. 
         \end{itemize}
     \end{definition}
-
-    \begin{remark}
-        \label{remark:types-of-codes-1}
-        Nonsingular codes cannot be applied in general to streams of symbols. Uniquely decodable codes may require waiting arbitrarily long before even one symbol can be decoded. Instantaneously decodable (or prefix) codes are self-punctuating, and hence they can be decoded on a per-symbol basis. 
-    \end{remark}
+    % 
+     \begin{example}
+        \label{example:source-codes-2}  Let the alphabet $\X$ be  as in~\Cref{example:source-codes-1}, and consider the four coding schemes described in~\Cref{tab:source-code-examples}. 
+        From the table, it is easy to see that 
+        \begin{itemize}
+            \item The coding scheme $C_1$ is clearly singular, since it assigns the same codeword $0$ to multiple symbols~($x_1$ and $x_3$). 
+            \item The scheme $C_2$ is non-singular as it is a one-to-one mapping from the symbols to codewords. However, it is not uniquely decodable: the sequences $100$ could either be decode as the single symbol $x_3$, or the triple $x_2x_1x_1$. 
+            \item The coding scheme $C_3$ is non-singular, and in fact is uniquely decodable~(UD). To see why, process any codeword sequence as follows:
+            \begin{itemize}
+                \item If first two bits are either $00$ or $10$, immediately decode them as $x_2$ and $x_1$ respectively, and continue. 
+                \item If the first two bits are $11$, then check the value of the next bit. If this is $1$, then decode the first two bits to $x_3$, and continue processing the sequence starting with the third bit. 
+                \item If the first three bits are $110$, then count the total number of zeros following the first $11$. If the number of zeros is even~(say $2k$), then the first symbol is $x_3$, followed by $k$ repetitions of $x_2$. If the the number of zeros is odd~(say $2k+1$), then the first symbol is $x_4$, followed by $k$ repetitions of $x_2$.   
+            \end{itemize}
+            Thus, despite being uniquely decodable, we may have to process the entire sequence of bits, before being able to decode even the first symbol. 
+            \item Finally, the scheme $C_4$ is prefix-free; and thus is instantaneously decodable. 
+        \end{itemize}
+        \begin{table}[htb!]
+            \centering
+            \begin{tabular}{|c|c|c|c|c|} 
+            \hline 
+                 Symbol~($x$) & $C_1(x)$ & $C_2(x)$ & $C_3(x)$ & $C_4(x)$ \\ \hline 
+                 $x_1$ & 0 & 0 & 10 & 0 \\
+                 $x_2$ & 1 & 1 & 00 & 10 \\
+                 $x_3$ & 0 & 100 & 11 & 110 \\
+                 $x_4$ & 01 & 101 & 110 & 111 \\ 
+                 \hline 
+            \end{tabular}
+            \caption{The table defines four source codes for symbols in the alphabet $\X=\{x_1, x_2, x_3, x_4\}$. The first scheme $C_1$ is clearly singular; $C_2$ is non-singular but not uniquely decodable; $C_3$ is uniquely decodable but not prefix-free~(or instantaneously decodable); while $C_4$ is an example of a prefix-free code.}
+            \label{tab:source-code-examples}
+        \end{table}
+    \end{example}   
+    % 
+    \paragraph{Summary.} It is impossible to encode~(in a lossless manner) even one symbol with singular codes. Nonsingular codes cannot be applied to streams of symbols without potentially losing information. Uniquely decodable~(UD) codes may require waiting arbitrarily long before even one symbol can be decoded. Instantaneously decodable (or prefix) codes are self-punctuating, and hence they can be decoded on a per-symbol basis. 
 
 
 \section{Kraft's Inequality} 
 \label{sec:kraft}
-    In this section, we will obtain a correspondence between probability distributions and compression schemes. In particular, we show that every prefix code~(in fact, every UD code) induces a probability distribution on the alphabet.
+    Following the discussion in the previous section, we would like to construct prefix-free codes with minimum expected lengths. Clearly, we cannot assign very short codewords to all symbols without violating the prefix-free property. In this section, we obtain a precise characterization of the set of codeword lengths that can be assigned to prefix-free~(in fact UD too) codes for countable alphabets $\X$. 
 
     \begin{theorem}
         \label{thm:kraft-prefix-1}  Suppose $\X$ is a countable alphabet, and $C$ denotes any binary prefix code with lengths $(l_i)_{i \geq 1}$. Then, we have 
@@ -46,6 +87,9 @@
         \end{align}
         Conversely, for any $(l_i)_{i \geq 1}$ satisfying~\eqref{eq:kraft-1}, we can construct a prefix code with these lengths. 
     \end{theorem}
+    \begin{remark}
+        \label{remark:kraft-finite-alphabet} When the alphabet $\X$ is finite, then the above result has a visual representation. Using the codewords, we can construct a binary tree~(for example, with $0$ denoting the left child, and $1$ denoting the right child). Thus, each codeword corresponds to the path from the root to a leaf of the tree so obtained. Since the code is prefix-free, no codeword is an ancestor of another. Then, in this case, Kraft's inequality is a statement of the fact that the sum of the number of descendants of $l_i$~(including it) at the level $l_{\max} = \max_{j} l_j$ is $\sum_{i} 2^{l_{\max}-l_i}$: a number which cannot be larger than $2^{l_{\max}}$. 
+    \end{remark}
     \begin{proof}
         For any binary codeword $\boldsymbol{y}_i = (y_1, y_2, \ldots, y_{l_i}) \in \{0, 1\}^*$, we introduce the following mapping: 
         \begin{align}
@@ -61,7 +105,7 @@
         \end{align}
         Since the length of each interval $I(\boldsymbol{y}_i)$ is equal to $2^{-l_i}$, and they are all contained in $[0, 1]$, the sum of their lengths must be upper bounded by $1$, as required. 
 
-        For the converse part, given $(l_i)_{i \geq 1}$ satisfying Kraft's inequality, we construct codewords as the binary representation of the lower endpoints of the following disjoint intervals: 
+        For the converse part, suppose we are given lengths $(l_i)_{i \geq 1}$ that are sorted in increasing order, and satisfy Kraft's inequality.  We can construct codewords with these lengths, as the as the binary representation of the smallest $l_i$ bit binary number: 
         \begin{align}
             I_i = \lb \sum_{j=1}^{i-1} 2^{-l_j}, \sum_{j=1}^{i} 2^{-l_j} \rp, \quad \text{for all } i \geq 1.  
         \end{align}
@@ -73,7 +117,7 @@
         \label{thm:kraft-ud-1} 
         Suppose $C$ is a uniquely decodable code over a countable alphabet $\X$, with lengths $(l_i)_{i \geq 1}$. Then, the lengths must satisfy Kraft's inequality. 
 
-        Furthermore, for any $(l_i)_{i \geq 1}$ satisfying Kraft's inequality, there exists a UD code over $\X$ with those lengths. 
+        Furthermore, for any $(l_i)_{i \geq 1}$ satisfying Kraft's inequality, there exists an instantaneous~(hence also UD) code over $\X$ with those lengths. 
     \end{theorem}
 
 
@@ -90,35 +134,61 @@
             & = \sum_{x^k \in \X_N^k} 2^{-l(x^k)} \\
             & = \sum_{m=1}^{k l_{\max}} a(m) 2^{-m}, 
         \end{align}
-        where $a(m)$ denotes the number of sequences in $\X_N^m$ that are assigned a codeword of length $m \in \{1, 2, \ldots, k l_{\max} \}$.  Next, we make the observation that $a(m) \leq 2^m$. This is because the code $C$ is assumed to be uniquely decodable, which means that each codeword in $\{0, 1\}^m$ is assigned to at most one element of $\X_N^*$. This implies that $a(m)  2^{-m} \leq 1$, and thus 
+        where $a(m)$ denotes the number of sequences in $\X_N^k$ that are assigned a codeword of length $m \in \{1, 2, \ldots, k l_{\max} \}$.  Next, we make the observation that $a(m) \leq 2^m$. This is because the code $C$ is assumed to be uniquely decodable, which means that each codeword in $\{0, 1\}^m$ is assigned to at most one element of $\X_N^k$. This implies that $a(m)  2^{-m} \leq 1$, and thus 
         \begin{align}
-            &\lp \sum_{x \in \X_N} 2^{-l(x)} \rp^{k} \leq k l_{\max} \\
-            \implies & \sum_{x \in \X_N} 2^{-l(x)} \leq k^{1/k} l_{\max}^{1/k}. 
+            &\lp \sum_{x \in \X_N} 2^{-l(x)} \rp^{k} \leq k l_{\max}\quad  
+            \implies  \sum_{x \in \X_N} 2^{-l(x)} \leq k^{1/k} l_{\max}^{1/k}. 
         \end{align}
         The above inequality is true for all values of $k \geq 1$, and hence, by taking the limit of $k \to \infty$, we get 
         \begin{align}
-            \sum_{x \in \X_N} 2^{-l(x)} \leq \lim_{k \to \infty} (k l_{\max})^{1/k} = 1. 
+            \sum_{x \in \X_N} 2^{-l(x)} \leq \lim_{k \to \infty} (k l_{\max})^{1/k} = \exp \lp  \lim_{k \to \infty} \frac{1}{k}\ln (k l_{\max}) \rp = 1. 
         \end{align}
         Since $N$ was arbitrary, we can then conclude that 
         \begin{align}
             \sum_{x \in \X}2^{-l(x)} = \lim_{N \to \infty} \sum_{x \in \X_N} 2^{-l(x)} \leq 1. 
         \end{align}
+        Thus, we have proved that any UD code must satisfy Kraft's inequality. 
+        
+        To show the converse, we simply observe that given $(l_i)_{i \in \mathbb{N}}$, we saw in~\Cref{thm:kraft-prefix-1} how to construct a prefix-free code with those lengths. Since prefix-free codes are also UD, the result follows. 
     \end{proof}
 
+    \begin{remark}
+        The non-overlapping intervals perspective used in proving~\Cref{thm:kraft-prefix-1} leads to an interesting conclusion regarding codes which satisfy Kraft's inequality strictly. That is if $\sum_{x \in \X}2^{-l(x)} < 1$, that means the union of all the intervals is a strict subset of $[0,1)$. That means there exists another nonempty interval in $[0,1)$, not intersecting with any of the codeword intervals. Since every interval contains an irrational number, whose binary representation is non-terminating, we can conclude that there exist infinitely long sequences that cannot be decoded into symbols from $\X^*$ under such coding schemes.  
+    \end{remark}
     
-\section{Lower Bound and SFE coding}
+\section{Optimal Code Length, Practical Schemes, and Redundancy}
+    \label{sec:coding-schemes}
 
-
-    \paragraph{Entropy as a lower bound on average codeword length.}  We now observe that for a random variable $X \sim P_X$ taking  values on the alphabet $\X$,  the average codeword length for any uniquely decodable code $C$ is lower bounded by the entropy of $X$. 
-
+    Kraft's inequality gives us a precise mathematical characterization of the prefix-free and UD codes, which allows us to formulate the problem of finding optimal prefix-free codes as a constrained optimization problem. Formally,  for a random variable $X$ with distribution $P$ over a countable alphabet $\X$, we can write the optimal coding problem as 
+    \begin{align}
+        \label{eq:optimal-source-coding-problem}
+        L^*(X) \defined \min_{ l(x): x \in \X  } \; \sum_{x \in \X} p(x) l(x), \quad \text{subject to } \sum_{x \in \X}2^{-l(x)} \leq 1, \; l(x) \in \mathbb{N}. 
+    \end{align}
+    Our first result shows that the optimal codeword length $L^*(X)$ is close to the entropy of $X$. 
     \begin{theorem}
-        \label{thm:source-coding-theorem} Suppose $X \sim P_X$ is a random variable taking values in a countable alphabet $\X$. If $C$ is any uniquely decodable coding scheme for $X$, then, we have 
+        \label{thm:source-coding-theorem} Suppose $X \sim P_X$ is a random variable taking values in a countable alphabet $\X$. Let $L^*(X)$ denote the average codeword length of the optimal uniquely decodable code, defined in~\eqref{eq:optimal-source-coding-problem}. Then, we have the following: 
         \begin{align}
-            L_C(X) = \sum_{x \in \X} p(x) l(x) \geq H(X) = \sum_{x \in \X} p(x) \log(1/p(x)). 
+            H(X) \leq L^*(X) \leq H(X) + 1.  \label{eq:source-coding-thm}
         \end{align}
     \end{theorem}   
     \begin{proof}
-        Since $C$ is uniquely decodable, it satisfies Kraft's inequality. Thus, the term $A = \sum_{x \in \X} 2^{-l(x)}$ is less than or equal to $1$. Define the probability distribution $R$ over $\X$, with \pmf $r(x) = 2^{-l(x)}/A$. Then, we have the following: 
+        \emph{Upper bound.} To show that $H(X) + 1$ is an upper bound on $L^*(X)$, we simply need to show that there exists a UD source code, whose average length is no larger than $H(X) + 1$. Define 
+        \begin{align}
+            l_x = \left\lceil \log\lp \frac{1}{p(x)} \rp \right\rceil \quad \text{for all } x \in \X, 
+        \end{align}
+        and observe that 
+        \begin{align}
+            \sum_{x \in \X} 2^{-l_x} \leq \sum_{x \in \X} 2^{\log p(x)} = \sum_{x \in \X} p(x) = 1. 
+        \end{align}
+        Thus, these collection of lengths satisfy Kraft's inequality. Hence, by the converse of Kraft's inequality, we know that there exists a prefix-free code, $C$, with these lengths. Furthermore, the average codeword length, $L_C(X)$, satisfies 
+        \begin{align}
+            L_C(X) = \sum_{x \in \X} p(x) l_x \leq \sum_{x \in \X} p(x)  \lp \log(1/p(x)) + 1 \rp  = H(X) + 1. 
+        \end{align}
+        This completes the proof of the upper bound. 
+        
+
+        \emph{Lower bound.} We will show that the average length of any UD code $C$~(i.e., any code that satisfies Kraft's inequality) must be loewr bounded by the entropy, which also implies the same about the optimal code. 
+        In particular, introduce the term $A = \sum_{x \in \X} 2^{-l(x)}$, and note that it is less than or equal to $1$. Define the probability distribution $R$ over $\X$, with \pmf $r(x) = 2^{-l(x)}/A$. Then, we have the following: 
         \begin{align}
             L_C(X) - H(X) &= \sum_{x \in \X} p(x) l(x) - \sum_{x \in \X} p(x) \log(1/p(x))\\
             & = \sum_{x \in \X} p(X) \log \lp \frac{p(x)}{2^{-l(x)}} \rp  \\
@@ -127,13 +197,441 @@
         \end{align}
         In the last inequality we used the nonnegativity of relative entropy, while in the second-last inequality, we used the fact that $A \leq 1$ for uniquely decodable codes. 
     \end{proof}
-    The proof of the above result also tells us when the optimal bound is achieved: if $A=1$, and $P_X = R$. 
+    \begin{remark}
+        The proof showing the lower bound in the above result also tells us the conditions under which $L^*(X) = H(X)$. It happens when (i) $A=1$, and $P=R$. Or in other words, the equality is achieved when the distribution $P$ is a \emph{dyadic} distribution of the from $P(x) = 2^{-l_x}$ for all $x \in \X$. 
+    \end{remark}
+    \begin{remark}
+        Suppose $X$ is a Bernoulli random variable with parameter $p$. Note that for small enough values of $p$, the entropy $h_2(p)$ can be made arbitrarily close to $0$. However, the length of the optimal coding scheme is equal to $1$. Thus the upper bound of~\Cref{thm:source-coding-theorem} cannot be improved. 
+    \end{remark}
 
-    \paragraph{Typical Set Coding.} We saw an example of a lossless compression scheme which achieves close to the optimal compression rate in~\Cref{remark:aep-1}. However, that scheme is mainly a theoretical construction, and is not feasible for practical compression tasks due to its exponential complexity. 
+    \begin{remark}
+        \label{remark:block-source-codes}
+        \Cref{thm:source-coding-theorem} states that the optimal codeword length can be up to one bit larger than the entropy. Nevertheless, we can do better by constructing codes for blocks of symbols at once, and spreading this additional bit over the entire block. That is, for some $n \geq 1$, we can construct an optimal code for the elements of the product space $\X^n$~(assuming computation is not an issue). By~\Cref{thm:source-coding-theorem}, we know that 
+        \begin{align}
+            H(X^n) \leq L^*(X^n) \leq H(X^n) + 1, \quad \text{which implies} \quad H(X) \leq \frac{1}{n} L^*(X^n) \leq H(X) + \frac{1}{n}. 
+        \end{align}
+        Or in other words, by considering large blocks of symbols at once, we can make the average codeword length per symbol arbitrarily close to the entropy. 
+    \end{remark}
 
-    \paragraph{Shannon Fano Elias Coding.} We now present a practical compression scheme that achieves the optimal compression rate for large block lengths. 
+    \paragraph{Typical Set Coding.} Before discussing the optimal Huffman coding scheme, we present a suboptimal, but conceptually simpler scheme. This builds upon the block coding idea, and works with symbols from $\X^n$ for large values of $n$. In particular, given $X^n$ drawn \iid from a distribution $P$, recall the definition of a typical set $A_n(\epsilon)$ as 
+    \begin{align}
+        A_n(\epsilon) = \lbr x^n \in \X^n: \lv -\frac{1}{n} \sum_{i=1}^n p(x_i) - H(X)\rv \leq \epsilon \rbr. 
+    \end{align}
+    For large enough $n$, we know that $A_n(\epsilon)$ satisfies the following properties: 
+    \begin{itemize}
+        \item $\mathbb{P}(A_n(\epsilon)) \geq 1-\epsilon$.  
+        \item $2^{n(H(X)-\epsilon)} \leq |A_n(\epsilon)| \leq 2^{n(H(X) + \epsilon)}$. 
+        \item $2^{-n(H(X) + \epsilon)} \leq p^n(x^n) \leq 2^{-n(H(X) - \epsilon)}$, for all $x^n \in A_n(\epsilon)$. 
+    \end{itemize}
+    Using these properties, we can define the following coding scheme: 
+    \begin{itemize}
+        \item Enumerate all the elements of the typical set from $1$ to $|A_n|$. 
+        \item Encode each sequence in the typical set by the binary code of its position in the enumeration (i.e., its position between $1$ and $|A_n|$). 
+        \item Prefix the binary code of each typical sequence with a leading $0$ 
+        \item Enumerate all the sequences in the non-typical set; assign them the codeword of their binary representation of their position; prefix each codeword with an additional $1$ to indicate it is a non-typical sequence. 
+    \end{itemize}
+    Then, the average codeword length of this coding scheme, per symbol, satisfies 
+    \begin{align}
+        \frac{L_C(X^n)}{n} &\leq (1-\epsilon) \frac{\log(|A_n|) + 2}{n} + \epsilon \frac{n \log(|\X|) + 2}{n} \\
+        & =   \frac{\log(|A_n|) + 2}{n} + \epsilon \frac{n \log(|\X|) - \log(|A_n|)}{n} \\ 
+        & \leq   \frac{n H(X) + n\epsilon + 2}{n} + \epsilon \frac{n \log(|\X|) - nH(X) + n\epsilon}{n} \\  
+        & = H(X) + \epsilon \lp 1 + \log(|\X|) + \epsilon\rp + \frac{2}{n}. 
+    \end{align}
+    Since $\epsilon > 0$ can be made arbitrarily small, by selecting large enough values of $n$, the typical set coding scheme achieves the optimal per-symbol compression rate asymptotically. 
 
-\section{Gambling, Doubling Rate} 
+    
+    \paragraph{Huffman Coding.} When $\X$ is a finite alphabet, an optimal solution to the integer program~\eqref{eq:optimal-source-coding-problem} can be found, surprisingly in $\mc{O}(|\X| \log (|\X|))$ time! This algorithm relies on the equivalence between prefix-free codes and binary trees, and presents a simple approach for constructing the code/binary trees. The scheme proceeds in the following steps: 
+    \begin{itemize}
+        \item Sort the pmf to get $p_1 \geq p_2 \geq \ldots p_{m-1} \geq p_m$ for $m = |\X|$. 
+        \item Select the two symbols corresponding to $p_{m-1}$ and $p_m$, and combine them into one symbol with probability $p_{m-1} + p_{m}$, and make this new symbol the parent node of the two original symbols. 
+        \item Repeat the process till only one symbol remains. 
+    \end{itemize}
+
+    \begin{example}
+        Suppose $\X = \{x_1, x_2, x_3, x_4, x_5, x_6\}$ and let $X$ be an $\X$-valued random variable with pmf $(1/8, 1/8, 1/8, 1/8, 1/4, 1/4)$. In this case, the Huffman code exactly matches the entropy. 
+    \end{example}
+
+    \begin{theorem}
+        \label{thm:huffman-optimal} Huffman code is optimal for~\eqref{eq:optimal-source-coding-problem}. That is, if $C$ denotes the Huffman code, and $C'$ is any other UD scheme, then $L_C(X) \leq L_{C'}(X)$ for all $\X$-valued random variables $X$. 
+    \end{theorem}
+
+    Despite its optimality, Huffman coding suffers from some drawbacks. The most important one is that in order to apply this scheme to large blocks of symbols~(following~\Cref{remark:block-source-codes}), the computational complexity grows exponentially. More specifically, even if we want to encode a single string of symbols in $\X^n$, we have to construct a code for all the $|\X|^n$ elements. We now present a scheme that can be constructed on-the-fly for streams of symbols in linear time. 
+    
+    \paragraph{Shannon-Fano-Elias~(SFE) and Arithmetic Coding.} The key idea behind the SFE coding scheme is to assign disjoint intervals to each symbol $x \in \X = \{1, 2, \ldots, m\}$ using its cumulative distribution function~(CDF). In particular, introduce the function $\barF$ as 
+    \begin{align}
+        \barF(x) = \sum_{x' < x} p(x') + \frac{1}{2} p(x) = F(x) - \frac{1}{2} p(x). 
+    \end{align}
+    In words, $\barF(x)$ denotes the mid-point of the interval corresponding to the jump in the CDF of $X$. We can then encode $x$ using the first $l(x) = \lceil \log(1/p(x))\rceil + 1$ bits of the binary representation of this value. Thus, the average codeword length of this scheme is within two bits of the entropy.
+
+    Now, suppose we want to apply this scheme to sequences of length $n$. Let us first order the elements of $\X^n$ based on the lexicographic order. A direct calculation of $\barF(x^n)$ will have exponential complexity as before, since it requires summing up over all elements $y^n \leq x^n$. However, we can instead compute the CDF recursively in linear time using expression: 
+    \begin{align}
+        F_n(x^n) = F_{n-1}(x^{n-1}) + P_{X^{n-1}}(x^{n-1}) \sum_{x'<x}P_{X_n|X^{n-1}}(x'). 
+    \end{align}
+    This above approach has two advantages: 
+    \begin{itemize}
+        \item It is an `anytime' scheme: it does not require the blocklength to be fixed beforehand, as it can update the scheme on the fly.  
+        \item It is computationally efficient: the computation of $\barF(x^n)$ is an $\mc{O}(n |\X|)$ operation. 
+        \item In the general case, where we do not know the probability distributions, it can be easily combined with any probability prediction schemes. 
+    \end{itemize}
+
+    Finally, we end this section with the observation that all our discussion so far has focused on cases where we have perfect knowledge of the probability distribution. What happens under misspecification? That is, what if we assume that the distribution of $X$ is $q$, when in reality, it is $p \neq q$? 
+
+    \begin{theorem}
+        \label{thm:misspecified-source-coding} Suppose we construct a code with lengths $l(x) = \lceil \log(1/q(x)) \rceil$. Then, we have 
+        \begin{align}
+            H(P) + \dkl(P \parallel Q) \leq \mathbb{E}_P[l(X)] \leq H(P) + \dkl(P \parallel Q) + 1. 
+        \end{align}
+        Thus, relative entropy has the operational meaning of the excess codeword length (or redundancy) incurred due to the lack of knowledge of the true distribution. 
+    \end{theorem}
+    \begin{proof}
+        This result follows from a direct evaluation of $\mathbb{E}_P[l(X)]$. In particular, we have 
+        \begin{align}
+            \sum_{x \in \X} p(x) \log \lp \frac{1}{q(x)} \rp  \leq \; \mathbb{E}_Q[l(X)] \;  \leq 
+            \sum_{x \in \X} p(x) \log \lp \frac{1}{q(x)} \rp + 1
+        \end{align}
+        On multiplying and dividing the term inside $\log$ with $p(x)$, we get the required statement:
+        \begin{align}
+            \sum_{x \in \X} p(x) \lp  \log \lp \frac{p(x)}{q(x)} \rp  + \log \lp \frac{1}{p(x)} \rp \rp \leq \; \mathbb{E}_Q[l(X)] \;  \leq 
+            \sum_{x \in \X} p(x) \lp  \log \lp \frac{p(x)}{q(x)} \rp  + \log \lp \frac{1}{p(x)} \rp \rp +  1.
+        \end{align}
+    \end{proof}
+    
+\section{Gambling} 
 \label{sec:gambling}
+    Consider the following scenario: there are $m$ horses competing in a race, and the probability that horse $i \in \X = \{1, \ldots, m\}$ wins the race is equal to $p_i$. A bookmaker offers the odds of $o_i$-for-1 for each horse $i$, where $o_i \in [0, \infty)$. Let $X$ denote the $\X$-valued random variable indicating the index of the winning horse. Suppose a gambler, with an initial wealth of $\$1$, bets a fraction $b_i$ on the $i^{th}$ horse. Here $b_i \in [0,1]$, and $\sum_{i}b_i=1$. We will use $\bvec$ and $\ovec$ to denote the betting and odds vectors, with $\bvec(i)=b_i$ and $\ovec(i)=o_i$ for $i \in \X$. Thus, the wealth of the gambler after betting on one horse race is equal to 
+    \begin{align}
+        W_1 = W_0 \times S(\bvec, \ovec, X) = 1 \times \bvec(X) \ovec(X). 
+    \end{align}
+    We will refer to $S(\bvec, \ovec, X)$ as the \emph{betting score}, and define the growth rate as 
+    \begin{align}
+        G(\bvec, \ovec, \pvec) = \mathbb{E}_{X \sim P}\lb \log S(\bvec, \ovec, X) \rb = \sum_{x \in \X} \pvec(x) \log \lp \bvec(x) \ovec(x) \rp.  \label{eq:growth-rate-horse-races}
+    \end{align}
+    Our goal is to design betting strategies that maximize this objective. 
+    \begin{remark}
+        \label{remark:betting-nomenclature} The odds for a horse race can be specified in two ways: \emph{$a$-for-$1$} or \emph{$b$-to-1}. Here are the steps involved in the former: 
+        \begin{itemize}
+            \item Before the race, the bettor pays $\$1$ to the bookmaker to bet on some event $E$~(say horse $i$ wins)
+            \item If event $E$ occurs, then the bettor receives $\$a$. Otherwise, the bettor gets nothing. 
+        \end{itemize}
+        In the second description, all the exchanges happen after observing the event: prior to observing the event, the bettor puts $\$1$ at stake. If the event $E$ occurs, he receives $\$b$, otherwise he pays the bookmakers $\$1$. 
+        It is easy to verify that the two descriptions are equivalent if $a = b+1$. 
+    \end{remark}
+    Our first result establishes the log-optimal betting strategy for horse races. 
+    \begin{theorem}
+        \label{theorem:prop-betting-horse-races} For $X \sim P$ with a \pmf $\pvec$, the optimal growth rate, denoted by $A^* \equiv A(\pvec, \ovec)$, is equal to 
+        \begin{align}
+            G^* = \sum_{x \in \X} \pvec(x) \log( \ovec(x)) - H(\pvec). \label{eq:optimal-growth-rate-horse}
+        \end{align}
+        Furthermore, this optimal value is achieved by a betting strategy $\bvec=\pvec$, and is known as the \emph{proportional betting} or \emph{Kelly betting} strategy.  
+    \end{theorem}
+    \begin{proof}
+        We prove this in two steps: first we identify a candidate solution by differentiating the Lagrangian of this optimization problem, and then verifying its optimality using information theoretic inequalities. 
 
-\section{Portfolio Optimization + Kelly Betting}
+        \red{TODO}
+    \end{proof}
+
+    \begin{corollary}
+        \label{corollary:iid-horse-races} Suppose there are $n$ \iid horse races, with the same odds $\ovec$ in each race. Then, the optimal strategy is to bet according to $\bvec^* = \pvec$ in each round~(i.e., a constant betting strategy), and the corresponding growth rate is $n G^*$, where $G^*$ was defined in~\eqref{eq:optimal-growth-rate-horse}. 
+    \end{corollary}
+
+    \begin{example}
+        \label{example:two-horses} Suppose there are two-horses with $\pvec = (p_1, p_2)$. If the bookmakers offer uniform odds of $2$-for-$1$ on both the horses, the optimal betting strategy is the proportional betting strategy $\bvec = (p_1, p_2)$, and furthermore, the optimal growth rate is $G^* = \log(2) - h_2(\pvec) = 1- h_2(\pvec)$. It is easy to verify that $G^*$ is equal to the capacity of a binary symmetric channel~(BSC) with the flip probability $p_1$~(or equivalently $p_2=1-p_1$).  
+    \end{example}
+
+    \paragraph{Value of side-information.} Suppose the bettor has some  side-information $Y$ taking values in some discrete set $\Y$, which he can use to bet on the outcome of the horse race $X$. Then, what is the financial value of this side-information? More specifically, how do the optimal betting strategy and the optimal growth rate change, given this side information. 
+
+    Clearly, the performance of the bettor cannot be any worse than the case in which no side-information is available~(since he can always choose to discard the side-information). Our next result gives a precise characterization of the utility of such side-information. 
+    \begin{proposition}
+        \label{prop:horse-race-side-info} 
+        Suppose the gambler has access to some side information $Y$, and let $P_{XY}$ denote the joint distribution of $(X,Y)$. Then, the optimal growth rate with the side-information, denoted by $G^*_s$, is equal to
+        \begin{align}
+            G^*_s = G^* + I(X;Y). 
+        \end{align}
+        Or in other words, the increase in the optimal growth rate is exactly equal to the mutual information between $X$ and $Y$. Furthermore, the optimal betting strategy is the conditionally proportional betting strategy, that bets according to 
+        \begin{align}
+            \bvec^*(\cdot | Y=y) = \pvec(\cdot |Y=y). 
+        \end{align}
+    \end{proposition}
+    \begin{proof}
+        For some conditional betting strategy $\bvec$, the growth rate is defined as 
+        \begin{align}
+            G &= \sum_{x, y} p(x,y) \log \lp o(x) b(x|y) \rp = \sum_{x, y} p(x,y) \log o(x) - \sum_{x, y} p(x,y) \log \lp \frac{1}{b(x|y)}  \rp \\
+            & = \sum_{x, y} p(x,y) \log o(x) - \sum_{x, y} p(x,y) \log \lp \frac{p(x|y)}{b(x|y)} \rp +\sum_{x, y} p(x,y) \log \lp p(x|y) \rp \\
+            & = \sum_{x }p(x) \log o(x) - \dkl( \pvec_{Y|X} \parallel \bvec_{Y|X} | \pvec_X) - H(Y|X). 
+        \end{align}
+        This implies that the optimal betting strategy is the conditional proportional betting strategy. Furthermore, the optimal growth rate with side-information is 
+        \begin{align}
+            G^*_s &= \sum_{x \in \X}p(x) \log o(x) - H(Y|X) = = \sum_{x \in \X}p(x) \log o(x) - H(X) + H(X)- H(Y|X) \\
+            & = G^* + H(X) - H(X|Y) = G^* + I(X;Y).
+        \end{align}
+        Thus, the mutual information between $X$ and $Y$ has the operational meaning as the financial value of side-information $Y$. 
+    \end{proof}
+
+
+    \paragraph{The bookmaker's perspective.}  Suppose a bookmaker offers odds of $o$-for-$1$ for the occurrence of an event $E$~(say a particular horse winning the race). Then, if the probability of $E$ is equal to $p$,  the expected returns for the bookmaker is 
+    \begin{align}
+        1 \times P(E^c) -  (o-1) \times P(E) = (1-p) - (o-1)p= 1 - op.
+    \end{align}
+    Thus in order to make a profit, the bookmaker should offer odds satisfying $o \leq 1/p$. Or equivalently, we can consider $1/o$ as an upper bound on the bookmakers prediction about the probability of $E$. 
+
+    Based on the above discussion, we will refer to betting odds as \emph{fair}, \emph{sub-fair}, and \emph{super-fair}, depending on whether $\sum_{i=1}^m 1/o_i$ is equal to, larger than, or smaller than $1$. 
+
+    \begin{proposition}
+        \label{prop:fair-horse-races} 
+        Suppose the betting odds offered for a horse race are fair; that is there exists an $\rvec = (r_1,\ldots, r_m) \in \Delta_m$, such that $r_i = 1/o_i$. Then, the growth rate for a strategy $\bvec$ is equal to 
+        \begin{align}
+            G(\bvec, \ovec, \pvec) = \dkl(\pvec \parallel \rvec) - \dkl(\pvec \parallel \bvec), \quad \text{and} \quad G^* = \dkl(\pvec \parallel \rvec).  
+        \end{align}
+        In words, a gambler can make money betting on horse races, only if the gamblers estimate~($\bvec$) of the probability of outcomes is closer to the truth~($\pvec$), than the bookmakers' estimate $\rvec$. The maximum growth rate achievable is equal to the divergence between the true probability and the bookmakers' estimate. 
+    \end{proposition}
+
+    \begin{proof}
+        The proof follows directly from the definitions. In particular, we have 
+        \begin{align}
+            G \equiv G(\bvec, \ovec, \pvec) &= \sum_{x \in \X} p(x) \log(o(x) b(x)) = \sum_{x \in \X} p(x) \log \lp \frac{b(x)}{r(x)} \rp  \\
+            &= \sum_{x \in \X} p(x) \log \lp \frac{b(x) p(x)}{r(x) p(x)} \rp 
+            = \sum_{x \in \X} p(x) \lp  \log \lp \frac{p(x)}{r(x)} \rp - \log \lp \frac{p(x)}{b(x)} \rp \rp  \\
+            &= \dkl \lp \pvec \parallel \rvec \rp  - \dkl \lp \pvec \parallel \bvec \rp. 
+        \end{align}
+        This implies that the optimal strategy is the one that minimizes the second term; that is $\bvec = \pvec$, which makes the second term zero. 
+    \end{proof}
+
+    \begin{remark}
+        As mentioned earlier, the optimal betting strategy in this case is the proportional betting strategy $\bvec^* = \pvec^*$. Suppose a bettor makes a wrong prediction $\qvec$ about the probability of outcomes. Then, what is the amount of suboptimality due to his wrong prediction? The above result suggests that the cost of the ignorance of the true distribution is 
+        \begin{align}
+            G^* - G(\qvec) &= \dkl(\pvec \parallel \rvec) - \lp \dkl(\pvec \parallel \rvec) - \dkl(\pvec \parallel \qvec) \rp  \\
+            & = \dkl (\pvec \parallel  \qvec). 
+        \end{align}
+        Thus, as in the case of compression, the relative entropy has an operational meaning as the price to pay for wrongly assuming the distribution to be $\qvec$, instead of the the true distribution($\pvec$). 
+    \end{remark}
+
+    \begin{corollary}
+        \label{corollary:uniform-odds} If the odds on a horse race are uniform; that is $\rvec = (1/m, \ldots, 1/m)$, then we have the following `conservation law': 
+        \begin{align}
+            G^* + H(\pvec) = \log m. 
+        \end{align}
+        Thus, a low entropy horse race~(i.e., a more compressible or predictable source) can lead to a large rate of growth of the bettors wealth. 
+    \end{corollary}
+
+    \begin{proof}
+        This result follows directly from~\Cref{prop:fair-horse-races}, since    
+        \begin{align}
+            G^* = \dkl(\pvec \parallel \rvec) = \log(m) +  \sum_{x \in \X} p(x) \log p(x)  = \log m - H(\pvec). 
+        \end{align}
+        The result then follows by taking the entropy on to the left side of the equality. 
+    \end{proof}
+
+    \paragraph{Betting with a `cash' option.} A subtle point in the preceding  discussion is that the bettor is assumed to bet using all his money in each bet. In reality however, often the bettor might prefer to invest only a part of his wealth on the horse races. This can be modeled as betting with a $1$-for-$1$ odds on a certain event. Such betting strategies can be represented as probability distributions over $\{0\} \cup \{1, \ldots, m\}$, where $0$ denotes the cash option. 
+
+    What happens to the optimal betting strategy when a cash option is allowed? Our next result addresses this issue. 
+    \begin{proposition}
+        \label{prop:betting-with-cash-option} Consider the problem of betting on horse races, where the bettor is allowed to retain a part of his initial wealth as cash. Then, the optimal betting strategy depends on the odds offered, and in particular: 
+        \begin{enumerate}[label=(\alph*)]
+            \item If the betting odds are fair, or super-fair~(i.e., $\sum_{i}1/o_i$ is either $=1$ or $<1$), then the proportional betting strategy is still optimal. That is there is no incentive to set aside some of the money as cash. 
+            \item If the betting odds are sub-fair, then the optimal betting strategy is usually not known in a closed form, and can be found through numerical optimization. 
+        \end{enumerate}
+    \end{proposition}
+
+    \begin{proof}
+        We consider the  super-fair  and sub-fair cases separately. 
+        \begin{enumerate}[label=(\alph*)]
+            \item When the odds are either fair or super-fair, we will show that for any strategy that sets aside a part of the wealth as cash, i.e., bets with $\bvec(0)>0$, there exists another strategy with $\bvec(0)=0$, whose growth rate is at least as good. Hence, there is no loss in optimality by restricting to strategies that bet all the money; and we have proved that among such schemes, the optimal strategy is the proportional betting strategy. 
+
+            In particular, suppose $\bvec$ denotes a strategy with $\bvec(0)>0$. Then, consider another strategy $\qvec$, that is defined as follows: 
+            \begin{align}
+                \qvec(i) = \begin{cases}
+                    0, & \text{ if } i = 0  \\
+                    \bvec(i) + \frac{c \bvec(0)}{\ovec(i)}, & \text{ if } i \in \X = [m]
+                \end{cases}, 
+                \quad \text{where} \quad c = \frac{1}{\sum_{i=1}^m 1/\ovec(i)}. 
+            \end{align}
+            For the case of fair odds, the value of $c$ is $1$, while for super-fair odds, $c$ is strictly greater than $1$. 
+
+            Now, for the outcome $X$, the betting score with the new strategy (with no cash option) is equal to 
+            \begin{align}
+                \qvec(X) \ovec(X) &= \lp \bvec(X) + \frac{c \bvec(0)}{\ovec(X)} \rp \ovec(X) = \bvec(X) \ovec(X) + c\bvec(0) \\
+                & \geq \bvec(X) \ovec(X) + \bvec(0). 
+            \end{align}
+            Thus the new strategy~($\qvec$) has the same gain as the strategy with cash option in the case of fair odds, and strictly better gain in the case of super-fair odds. 
+            \item In this case, we can write the following optimization problem: 
+            \begin{align}
+                &\max_{\bvec} \sum_{i=1}^m p_i \log \lp b_0 + b_i o_i \rp  \\
+                \text{subject to} \; 
+                & \sum_{i=0}^m b_i = 1, \quad \text{and} \quad b_i \geq 0 \; \forall i \in \{0, \ldots, m\}. 
+            \end{align}
+            For this optimization problem, we can write the Lagrangian as 
+            \begin{align}
+                L(\bvec, \lambda, \boldsymbol{\mu}) = \sum_{i=1}^m p_i \log(b_0 + b_i o_i) + \lambda \lp \sum_{j=0}^m b_j \rp - \sum_{j=0}^m\mu_j b_j. 
+            \end{align}
+            The first-order necessary conditions imply: 
+            \begin{align}
+                &\frac{\partial L}{\partial b_0} = \sum_{i=1}^m\frac{p_i}{b_0 + b_i o_i} + \lambda - \mu_0 = 0  \\
+                &\frac{\partial L}{\partial b_i} = \frac{p_i o_i}{b_0 + b_i o_i} + \lambda - \mu_i = 0. 
+            \end{align}
+            The primal and dual constraints, along with the complementary slackness conditions, imply: 
+            \begin{align}
+                \sum_{i=0}^m b_i = 1, \quad b_i \geq 0\; \forall i, \quad \lambda \geq 0, \quad \mu_i \geq 0, \quad \text{and} \quad \mu_i b_i = 0 \; \forall i. 
+            \end{align}
+            By considering different cases, it can be proved that the optimal solution depends on the value of $A = \sum_{i=1}^m p_i o_i$. In particular, if $A \leq 1$, the the optimal strategy is to keep all the money as cash: that is $\bvec(0)=1$. 
+
+            In the case where $A = \sum_{i=1}^m p_i o_i > 1$, the optimal strategy cannot be explicitly stated, but can be algorithmically constructed, and we refer the reader to~\citet{kelly1956new} for details. 
+        \end{enumerate}
+    \end{proof}
+    
+    \paragraph{Repeated betting on horse races.}
+    If there is a sequence of $n$ horse races, with $X^n \in \X^n$ indicating the winners of these races, we can similarly define the wealth after $n$ rounds as
+    \begin{align}
+        W_n = \bvec^n(X^n) \ovec^n(X^n) = \prod_{i=1}^n \bvec(X_i|X^{i-1}) \ovec(X_i|X^{i-1}). 
+    \end{align}
+    The above definition allows both, the betting strategy and the odds offered, to be predictable: that is, for the $i^{th}$ race, the betting method $\bvec(\cdot|X^{i-1})$ and the odd $\ovec(\cdot|X^{i-1})$ can depend on the outcomes of the prior races. It also allows the horse races to be dependent on each other. \Cref{theorem:prop-betting-horse-races} implies that the growth optimal betting strategy in this setting is to $\bvec^n = \pvec^n$. 
+    \begin{remark}
+        \label{remark:gambling-is-probability-assignment} The above discussion makes the connection between gambling and compression clear: both these problems can be reduced to that of assigning probabilities to sequences of observations. In the case of compression, by assigning probabilities, we can use methods such as arithmetic coding, to convert them into a prefix-free code. While in gambling, by assigning probabilities to all sequences, we can increase the rate at which the bettor's wealth grows. 
+    \end{remark}
+
+  
+\section{Portfolio Optimization}
+\label{sec:portfolio-optimization-1}
+    Consider a stock-market with $m$ stocks and let $\Xvec = (X_1, \ldots, X_m)$ denote the  price relative of these stocks over one trading period~(say one day). That is, $X_i$ denotes the price ratio of the price of stock $i \in [m]$ at the end of the day to its price at the beginning of the day. We assume that $\Xvec$ is drawn according to some distribution $P$, defined on the set $[0, \infty)^m$. 
+
+    A stock-portfolio is represented by a vector $\bvec \in \Delta_{m-1}$, that denotes the distribution of the investment over the $m$ stocks. Starting with a wealth of $\$1$, the wealth after one day for a portfolio $\bvec$ is defined as 
+    \begin{align}
+        W_1 = W_0 \times \langle \Xvec, \bvec \rangle = W_0 \times \lp \sum_{i=1}^m X_i b_i \rp. 
+    \end{align}
+    Often, one of the components of a portfolio is a risk-free asset, such as treasury bonds or cash. Such assets correspond to a price relative of $1$. 
+
+    \begin{remark}
+        \label{remark:stock-market-vs-horse-races} The horse races from the previous section are a special case of the general stock-market introduced above. In particular, it corresponds to the case where $\Xvec$ is restricted to take values in the discrete set $\{e_1, \ldots, e_m\}$, where $e_i = (0, \ldots, 0, 1, 0, \ldots, 0)$ denotes the element in $\{0,1\}^m$, with $1$ at the $i^{th}$ coordinate. Thus, the stock market is a significant generalization of horse races, allowing $\Xvec$ to take any values in $[0,\infty)^m$. However, as we will see in the next chapter, in some sense, horse races are the examples of the \emph{hardest}  stock markets. 
+    \end{remark}
+
+    The growth rate of a stock portfolio $\bvec$, and the optimal growth rate are defined  as 
+    \begin{align}
+        G(\bvec, P) = \mathbb{E}_P\lb \log \langle \Xvec, \bvec \rangle \rb, \quad G^*(P) = \sup_{ \bvec \in \Delta_{m-1}}  G(\bvec, P). 
+    \end{align}
+
+    Unlike the horse racing problem, the optimal portfolio $\bvec^*$ does not admit a closed-form expression in general. Nevertheless, we can establish necessary and sufficient conditions for a $\bvec$ to be optimal. 
+
+    \begin{theorem}
+        \label{thm:optimal-stock-portfolio-1} The optimal portfolio $\bvec^*$ for a stock market $\Xvec \sim P$ satisfies 
+        \begin{align}
+            \mathbb{E}_P\lb \frac{X_i}{\langle \bvec^*, \Xvec \rangle} \rb = 
+            \begin{cases}
+                = 1, & \text{ if } b_i^* > 0 \\
+                \leq 1 & \text{ if } b_i^* = 0. 
+            \end{cases}
+        \end{align}
+    \end{theorem}
+    \begin{proof}
+        To begin proving this, we first observe the following two facts: 
+        \begin{itemize}
+            \item The mapping $\bvec \mapsto G(\bvec, P) \defined \mathbb{E}_P\lb \log \langle \bvec, \Xvec \rangle \rb$ is concave. This is because, $\bvec \mapsto \langle \Xvec, \bvec \rangle$ is linear, $x \mapsto \log(x)$ is concave, and that $\mathbb{E}_P[\cdot]$ is a linear operator. 
+            \item The mapping $P \mapsto G^*(P)$ is convex. To see why this is true, consider distributions $P_1, P_2$, and their convex combinations $P_\lambda$. Then, we have 
+            \begin{align}
+                G^*(P_\lambda) &= G\lp \bvec^*_\lambda, P_\lambda \rp = \lambda G\lp \bvec^*_\lambda, P_1 \rp + (1-\lambda) G\lp \bvec^*_\lambda, P_2 \rp  \\
+                & \leq \lambda G^*(P_1) + (1-\lambda)G^*(P_2). 
+            \end{align}
+            \item The set of log-optimal portfolios for a fixed $P$ is convex. To see this, consider two log-optimal portfolios $\bvec_1$ and $\bvec_2$. Then, due to the concavity of the mapping from $\bvec \mapsto G(\bvec, P)$, we have 
+            \begin{align}
+                G(\bvec_\lambda, P) \geq \lambda G(\bvec_1, P) + (1-\lambda) G(\bvec_2, P) = G^*(P). 
+            \end{align}
+            Hence, $\bvec_\lambda$ is also log-optimal. 
+        \end{itemize}
+
+        Thus, the problem of finding a log-optimal portfolio reduces to maximizing a concave function over a convex set, and the set of optimal solutions is also convex. Let $\bvec^*$ denote any log-optimal portfolio. Then, by the first-order necessary condition for optimality, the directional derivative along a direction $\bvec$ must be nonnegative. That is 
+        \begin{align}
+            \lim_{\lambda \downarrow 0} \frac{1}{\lambda} \lp  \mathbb{E}_P \lb \log \langle (1-\lambda)\bvec^* + \lambda \bvec, X \rangle \rb  - \mathbb{E}_P \lb \log \langle \bvec^*, X \rangle \rb  \rp  
+            = \lim_{\lambda \downarrow 0} \frac{1}{\lambda} \lp  \mathbb{E}_P \lb \log \lp \frac{ \langle (1-\lambda)\bvec^* + \lambda \bvec, X \rangle}{\langle \bvec^*, X \rangle} \rp \rb  \rp \leq 0. 
+        \end{align}
+        On simplification, the above result implies 
+        \begin{align}
+            \lim_{\lambda \downarrow 0} \frac{1}{\lambda} \lp  \mathbb{E}_P \lb \log \lp \frac{ \langle (1-\lambda)\bvec^* + \lambda \bvec, X \rangle}{\langle \bvec^*, X \rangle} \rp \rb  \rp  &= 
+            \lim_{\lambda \downarrow 0} \frac{1}{\lambda} \lp  \mathbb{E}_P \lb \log \lp 1-\lambda +  \lambda \frac{ \langle \bvec, X \rangle}{\langle \bvec^*, X \rangle} \rp \rb  \rp \\
+            &\stackrel{DCT}{=} 
+                \mathbb{E}_P \lb \lim_{\lambda \downarrow 0} \frac{1}{\lambda} \log \lp 1 +  \lambda \lp  \frac{ \langle \bvec, X \rangle}{\langle \bvec^*, X \rangle}-1\rp \rp \rb  \\
+            & =   \mathbb{E}_P \lb  \lp  \frac{ \langle \bvec, X \rangle}{\langle \bvec^*, X \rangle}-1\rp \rb 
+        \end{align}
+        Thus, the above discussion implies that 
+        \begin{align}
+            \mathbb{E}_P \lb   \frac{ \langle \bvec, X \rangle}{\langle \bvec^*, X \rangle} \rb  \leq 1. 
+        \end{align}
+        By setting $b = e_i$, we get $\mathbb{E}_P\lb X_i/\langle \bvec^*, X \rangle\rb \leq 1$. Furthermore, if $b_i^* > 0$, the inequality holds with equality. 
+    \end{proof}
+
+    \paragraph{Consequences of the characterization of log-optimal portfolio.} Using the previous result, we can derive several interesting properties of the log-optimal portfolio. In particular, we will use the above result to show the following: 
+    \begin{itemize}
+        \item The expected ratio of the one-step increments of any portfolio to a log-optimal portfolio is at most one. 
+        \item Playing the log-optimal portfolio repeatedly results in a wealth that is at least as good as any other predictable scheme in the first order term in the exponent. 
+        \item The value of side-information $Y$ in portfolio optimization is upper bounded by the mutual information $I(X;Y)$. 
+    \end{itemize}
+    
+    We begin with a result that states that the ratio of the one-step growth of any portfolio $\bvec$ over that of the optimal portfolio is smaller than $1$ in expectation. 
+    \begin{corollary}
+        \label{corollary:optimal-portfolio-2} Suppose $S^* = \langle \bvec^*, X\rangle$, and $S = \langle \bvec, X \rangle$ for any feasible portfolio $\bvec$. Then, we have 
+        \begin{align}
+            \mathbb{E}_P\lb \log \lp \frac{S}{S^*} \rp \rb \leq 0 \quad \Leftrightarrow \quad \mathbb{E}_P \lb \frac{S}{S^*} \rb \leq 1. 
+        \end{align}
+    \end{corollary}
+    \begin{proof}
+        Suppose $\bvec^*$ is a log-optimal portfolio. Then, by~\Cref{thm:optimal-stock-portfolio-1}, we have 
+        \begin{align}
+            \mathbb{E}_P\lb \frac{X_i}{S^*} \rb \leq 1, 
+        \end{align}
+        which implies that 
+        \begin{align}
+            \sum_{i=1}^m b_i \mathbb{E}_P\lb \frac{X_i}{S^*} \rb = \sum_{i=1}^m  \mathbb{E}_P\lb \frac{ b_i X_i}{S^*} \rb = \mathbb{E}_P \lb \frac{S}{S^*} \rb \leq \sum_{i=1}^m b_i = 1. 
+        \end{align}
+        This proves one direction: if $\bvec^*$ is the log-optimal portfolio, then the ratio one-step increments of any other strategy w.r.t. $\bvec^*$ is upper bounded by $1$ in expectation. 
+
+        To show the other direction, that if $\mathbb{E}_P[S/S^*] \leq 1$ for some strategy $\bvec^*$, then it is log-optimal, we simply note that 
+        \begin{align}
+            \mathbb{E}_P\lb \log \lp \frac{S}{S^*} \rp \rb \leq \log \lp \mathbb{E}_P\lb \frac{S}{S^*} \rb \rp \leq \log(1) = 0. 
+        \end{align}
+    \end{proof}
+
+    As in the case of horse racing, we can consider the problem of repeated investments in stock markets. In such problems, we can adapt the betting strategy based on the previous outcomes. However, for \iid stock markets, the optimal strategy is a constant investment strategy (i.e., the one-step log-optimal strategy). 
+
+    \begin{proposition}
+        \label{prop:iid-stock-market} Suppose $\Xvec_1, \ldots, \Xvec_n$ denote \iid realizations of $P$. If $W^*_n$ is the wealth of the log-optimal strategy, then we have 
+        \begin{align}
+            \mathbb{E}_{P^n}[\log(W^*_n)] = n G^*(P) \geq \mathbb{E}_{P^n}[\log W_n], 
+        \end{align}
+        for any $W_n$ constructed using predictable investment strategies. 
+    \end{proposition}
+    \begin{proof}
+        The proof of the above statement follows from the definitions. 
+        \begin{align}
+            \max_{\bvec_1, \ldots, \bvec_n} \mathbb{E}\lb \log W_n \rb = \max_{\bvec_1, \ldots, \bvec_n} \sum_{i=1}^n \log \langle \bvec_i, \Xvec_i \rangle  
+             = n \max_{\bvec} \mathbb{E}\lb \log \langle \bvec, \Xvec \rangle \rb = nG^*(P). 
+        \end{align}
+    \end{proof}
+    Using this, we can show that playing the log-optimal portfolio repeatedly is optimal up to the first exponent. 
+    \begin{proposition}
+        \label{prop:log-optimal-first-order} Let $W_n^*$ denote the wealth from playing the log-optimal strategy repeatedly. Then, for any other predictable strategy, we have 
+        \begin{align}
+            \limsup_{n \to \infty} \log \lp \frac{W_n}{W_n^*} \rp \leq 0 \quad \text{almost surely}. 
+        \end{align}
+    \end{proposition}
+    \begin{proof}
+        This result is a simple consequence of~\Cref{corollary:optimal-portfolio-2} and the first Borel-Cantelli Lemma. In particular, due to~\Cref{corollary:optimal-portfolio-2}, we have 
+        \begin{align}
+            \mathbb{P}\lp \frac{W_n}{W_n^*} \geq a_n \rp \leq \frac{\mathbb{E}\lb W_n/W_n^* \rb}{a_n} \leq \frac{1}{a_n}. 
+        \end{align}
+        Now, if we select $a_n=n^2$, it implies that $\sum_{n} 1/a_n < \infty$. Hence, by an application of Borel-Cantelli lemma, we have 
+        \begin{align}
+            \mathbb{P}\lp \frac{1}{n} \log (W_n/W_n^*) > \frac{1}{n}\log (a_n) \; \text{infinitely often} \rp  = 0. 
+        \end{align}
+        Since $\log(a_n)/n \to 0$, this implies that 
+        \begin{align}
+            \limsup_{n \to \infty} \frac{1}{n} \log \lp \frac{W_n}{W_n^*} \rp \leq \lim_{n\to \infty} \frac{2 \log n}{n}  = 0 
+        \end{align}
+        almost surely. 
+        This completes the proof. 
+    \end{proof}
+
+    Finally, we consider the value of side information. 
+    \begin{proposition}
+        \label{prop:side-info-stock} Suppose $Y$ denotes some side-information that is available to the investor. Then, the improvement in the growth rate by incorporating the side-information is no larger than the mutual information $I(X;Y)$. That is, 
+        \begin{align}
+            G^*_s(P) - G^*(P) \leq I(X;Y). 
+        \end{align}
+        The equality holds when the stock market is actually a horse race. 
+    \end{proposition}
