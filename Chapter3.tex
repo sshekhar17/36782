@@ -500,7 +500,14 @@
     Often, one of the components of a portfolio is a risk-free asset, such as treasury bonds or cash. Such assets correspond to a price relative of $1$. 
 
     \begin{remark}
-        \label{remark:stock-market-vs-horse-races} The horse races from the previous section are a special case of the general stock-market introduced above. In particular, it corresponds to the case where $\Xvec$ is restricted to take values in the discrete set $\{e_1, \ldots, e_m\}$, where $e_i = (0, \ldots, 0, 1, 0, \ldots, 0)$ denotes the element in $\{0,1\}^m$, with $1$ at the $i^{th}$ coordinate. Thus, the stock market is a significant generalization of horse races, allowing $\Xvec$ to take any values in $[0,\infty)^m$. However, as we will see in the next chapter, in some sense, horse races are the examples of the \emph{hardest}  stock markets. 
+        \label{remark:stock-market-vs-horse-races} The horse races from the previous section are a special case of the general stock-market introduced above. In particular, it corresponds to the case where $\Xvec$ is restricted to take values in the discrete set $\{o_1 e_1, \ldots, o_m e_m\}$, where $e_i = (0, \ldots, 0, 1, 0, \ldots, 0)$ denotes the element in $\{0,1\}^m$, with $1$ at the $i^{th}$ coordinate. Thus, the stock market is a significant generalization of horse races, allowing $\Xvec$ to take any values in $[0,\infty)^m$. However, as we will see in the next chapter, in some sense, horse races are the examples of the \emph{hardest}  stock markets. 
+    \end{remark}
+
+    \begin{remark}
+        Consider the setting where an \emph{expert} recommends us to use a particular portfolio $\bvec$. Since the components of $X$ are not assumed to be independent, we can define a new price relative $Y = (X, \langle \bvec, X \rangle)$. So, do we gain in terms of the growth rate by expanding the portfolio of stocks and betting on this larger portfolio? The answer is no; that is, 
+        \begin{align}
+            \sup_{\widetilde{\bvec} \in \Delta_m} \mathbb{E}_Y[\log \langle \widetilde{\bvec}, Y \rangle ] = \sup_{\bvec \in \Delta_{m-1}} \mathbb{E}_X\lb \log \langle \bvec, X \rangle \rb. 
+        \end{align}
     \end{remark}
 
     The growth rate of a stock portfolio $\bvec$, and the optimal growth rate are defined  as 
@@ -559,7 +566,11 @@
     \paragraph{Consequences of the characterization of log-optimal portfolio.} Using the previous result, we can derive several interesting properties of the log-optimal portfolio. In particular, we will use the above result to show the following: 
     \begin{itemize}
         \item The expected ratio of the one-step increments of any portfolio to a log-optimal portfolio is at most one. 
+
         \item Playing the log-optimal portfolio repeatedly results in a wealth that is at least as good as any other predictable scheme in the first order term in the exponent. 
+
+        \item The drop in optimal growth rate due to using a wrong distribution for $X$~(say $Q$ instead of $P$) is upper bounded by the relative entropy $\dkl(P \parallel Q)$. 
+        
         \item The value of side-information $Y$ in portfolio optimization is upper bounded by the mutual information $I(X;Y)$. 
     \end{itemize}
     
@@ -569,6 +580,11 @@
         \begin{align}
             \mathbb{E}_P\lb \log \lp \frac{S}{S^*} \rp \rb \leq 0 \quad \Leftrightarrow \quad \mathbb{E}_P \lb \frac{S}{S^*} \rb \leq 1. 
         \end{align}
+        As a result, we have 
+        \begin{align}
+            \mathbb{P}\lp \frac{S}{S^*} \geq \delta \rp \leq \frac{1}{\delta}, 
+        \end{align}
+        by an application of Markov's inequality. 
     \end{corollary}
     \begin{proof}
         Suppose $\bvec^*$ is a log-optimal portfolio. Then, by~\Cref{thm:optimal-stock-portfolio-1}, we have 
@@ -586,6 +602,16 @@
             \mathbb{E}_P\lb \log \lp \frac{S}{S^*} \rp \rb \leq \log \lp \mathbb{E}_P\lb \frac{S}{S^*} \rb \rp \leq \log(1) = 0. 
         \end{align}
     \end{proof}
+
+    \begin{remark}
+        \label{remark:counterexample-portfolio} Consider a problem with two stocks: $(X_1, X_2) = (1, 1/(1-\epsilon))$ or $(1, 0)$, with probability $1-\epsilon$ and $\epsilon$ respectively. How does the optimal portfolio look like? Suppose $\bvec = (b, \bar{b})$. Then, applying~\Cref{thm:optimal-stock-portfolio-1} to this problem, we have 
+        \begin{align}
+            \mathbb{E}\lb \frac{X_2}{b X_1 + \bar{b} X_2} \rb = (1-\epsilon) \frac{1/(1-\epsilon)}{b + \bar{b}/(1-\epsilon)} = \frac{1-\epsilon}{1 - \epsilon b} \leq 1. 
+        \end{align}
+        This implies that $b \geq 1$, which means that the optimal portfolio is $\bvec^* = (1, 0)$, and it places no weight on the second stock. 
+
+        Now, consider another investor, who invests according to the opposite portfolio $\bvec = (0, 1)$, and invests all his money in the second stock. In one round of investment, the second investor outperforms the log-optimal investor with probability at least $1-\epsilon$. Thus, the inequality in~\Cref{corollary:optimal-portfolio-2} is tight in this sense. 
+    \end{remark}
 
     As in the case of horse racing, we can consider the problem of repeated investments in stock markets. In such problems, we can adapt the betting strategy based on the previous outcomes. However, for \iid stock markets, the optimal strategy is a constant investment strategy (i.e., the one-step log-optimal strategy). 
 
@@ -626,12 +652,77 @@
         almost surely. 
         This completes the proof. 
     \end{proof}
+    While the constantly rebalanced portfolio $b^*$ is optimal for the case  of \iid price relatives,  in general, we the optimal strategy is the conditionally  log-optimal portfolios. That is $\{X_t: t \geq 1\}$ is an arbitrary stochastic process, then the optimal strategy is to play the portfolio $\bvec^*_t \equiv \bvec^*_t(\cdot | X^{t-1})$, based on the conditional distribution of $X_t$ given $X^{t-1}$. 
 
-    Finally, we consider the value of side information. 
+    We now show an analog of~\Cref{corollary:optimal-portfolio-2} for this general scheme. 
     \begin{proposition}
-        \label{prop:side-info-stock} Suppose $Y$ denotes some side-information that is available to the investor. Then, the improvement in the growth rate by incorporating the side-information is no larger than the mutual information $I(X;Y)$. That is, 
+        \label{prop:ratio-of-wealth-supermartingale} Let $\{X_t: t \geq 1\}$ denote a sequence of price relatives drawn according to an arbitrary stochastic process. Let $\{W_n^*: n \geq 1\}$ and $\{W_n: n \geq 1\}$ denote the wealth processes of the conditionally log-optimal investor, and an arbitrary predictable investor. Then, we have the following: 
+        \begin{enumerate}[label=(\alph*)]
+            \item The ratio process $\{M_n = W_n/W_n^*: n \geq 1\}$ is a nonnegative supermartingale adapted to the natural filtration $\{ \mc{F}_n = \sigma(X^n): n \geq 1\}$, with an initial value $1$. (i.e., it is a \emph{test martingale})
+            \item There exists a $\mc{F}_{\infty}$-measurable random variable $M$, such that $M_n \convas M$, and $\mathbb{E}[M]\leq 1$. 
+            \item For any $\delta > 0$, we have 
+            \begin{align}
+                \mathbb{P}\lp \exists n \geq 1: M_n \geq \frac{1}{\delta} \rp \leq \delta. 
+            \end{align}
+        \end{enumerate}
+    \end{proposition}
+        \begin{proof}
+        The main step in this proof is to show the supermartingale property.
+        \begin{enumerate}[label=(\alph*)]
+            \item In particular, we observe that 
+                \begin{align}
+                    \mathbb{E}\lb \frac{ W_{n+1} }{ W_{n+1}^* } \mid \mc{F}_n \rb  & = \mathbb{E}\lb \frac{ W_n \langle \bvec_{n+1} , X_{n+1} \rangle }{ W_n^* \langle \bvec^*_{n+1} , X_{n+1} \rangle} \mid \mc{F}_n \rb  \\
+                    & = \frac{W_n}{W_n^*} \sum_{i=1}^m \bvec_{n+1}(i) \mathbb{E}\lb \frac{X_{n+1}(i)}{\langle \bvec^*_{n+1}, X_{n+1} \rangle } \mid \mc{F}_n \rb \\
+                    & \leq M_n \sum_{i=1}^m \bvec_{n+1}(i) = M_n. 
+                \end{align}
+                The nonnegativity follows from the definitions of $W_n$ and $W_n^*$. Thus, we have proved that $\{M_n: n \geq 0\}$ is a nonnegative supermartingale with an initial value of $1$. 
+            \item These statements are a direct application of the (super-)Martingale convergence theorem. 
+            \item  This is an application of Ville's inequality. 
+        \end{enumerate}
+    \end{proof}
+
+    Finally, we consider the issues of misspecified probability distribution, and the value of side information. 
+    \begin{proposition}
+        \label{prop:misspecified-distribution-portfolio}
+         Suppose $X \sim P$, and let $\bvec_P$ denote the  optimal portfolio for this distribution over price relatives. Let $Q$ denote another distribution over price relatives, and $\bvec_Q$ its corresponding optimal portfolio. Then, if $X\sim P$, but an investor wrongly assumes that the distribution is $Q$, the reduction in growth rate satisfies 
+        \begin{align}
+            G^*(P) - G(\bvec_Q, P) \leq \dkl(P \parallel Q). 
+        \end{align}
+    \end{proposition} 
+    \begin{proof}
+        The proof of this result follows the definition along with the characterization of the optimal portfolio in~\Cref{thm:optimal-stock-portfolio-1}.  For simplicity, we will assume that $P$ and $Q$  have densities $p$ and $q$ with respect to the Lebesgue measure on $\reals^m$. Then, we have the following: 
+        \begin{align}
+            G^*(P) - G(\bvec_Q, P) &= \mathbb{E}_P\lb \log \langle \bvec_P, X \rangle \rb  - \mathbb{E}_P\lb \log \langle \bvec_Q, X \rangle \rb  
+             = \mathbb{E}_P\lb \log  \lp \frac{\langle \bvec_P, X \rangle}{\langle \bvec_Q, X \rangle} \rp  \rb\\
+             & = \mathbb{E}_P \lb \log  \lp \frac{\langle \bvec_P, X \rangle  q(X)}{\langle \bvec_Q, X \rangle  p(X)} \rp  + \log \lp \frac{p(X)}{q(X)}\rp \rb. 
+        \end{align}
+        Now, the expectation of the second term is clearly the relative entropy between $P$ and $Q$, and to complete the proof, we need to show that the expectation of the first term is nonnegative. We do this by appealing to~\Cref{thm:optimal-stock-portfolio-1}, and concavity of $\log(\cdot)$. In particular, we have 
+        \begin{align}
+            G^*(P) - G(P, \bvec_Q) &= \dkl(P \parallel Q) + \mathbb{E}_P \lb \log  \lp \frac{\langle \bvec_P, X \rangle  q(X)}{\langle \bvec_Q, X \rangle  p(X)} \rp \rb  \\
+            & \leq \dkl(P \parallel Q) + \log   \mathbb{E}_P \lb \frac{\langle \bvec_P, X \rangle  q(X)}{\langle \bvec_Q, X \rangle  p(X)}  \rb   \\
+            & = \dkl(P \parallel Q) + \log   \mathbb{E}_Q \lb \frac{\langle \bvec_P, X \rangle }{\langle \bvec_Q, X \rangle}  \rb   \\
+            & = \dkl(P \parallel Q) + \log \lp \sum_{i=1}^m \bvec_P(i) \mathbb{E}_Q\lb \frac{X_i}{\langle \bvec_Q, X\rangle} \rb \rp \\
+            & \leq \dkl(P \parallel Q)  + \log \lp \sum_{i=1}^m \bvec_P(i)  \rp = \dkl(P \parallel Q). 
+        \end{align}
+        The first inequality above is due to an application of Jensen's inequality, and the second inequality uses the characterization of the optimal portfolio $\bvec_Q$. 
+    \end{proof}
+
+    A simple application of the previous result is that the value of side-information is upper bounded by the mutual information, with equality if the stock market is actually a horse race. 
+    \begin{corollary}
+        \label{corollary:side-info-stock}
+        Suppose $Y$ denotes some side-information that is available to the investor. Then, the improvement in the growth rate by incorporating the side-information is no larger than the mutual information $I(X;Y)$. That is, 
         \begin{align}
             G^*_s(P) - G^*(P) \leq I(X;Y). 
         \end{align}
         The equality holds when the stock market is actually a horse race. 
-    \end{proposition}
+    \end{corollary}
+    \begin{proof}
+        To prove this result, we again look at the definition of the drop in growth rates. 
+        \begin{align}
+            G^*_s(P) - G^*(P) &= \mathbb{E}_{Y}\lb \mathbb{E}_{X|Y}[\log \langle \bvec^*_Y, X \rangle | Y] \rb - \mathbb{E}_X \lb \log \langle \bvec^*, X  \rangle \rb  \\
+            &= \mathbb{E}_{Y}\lb \mathbb{E}_{X|Y}\lb \log \lp \frac{\langle \bvec^*_Y, X \rangle}{\langle \bvec^*, X  \rangle} \rp \mid Y \rb \rb  \\
+             &\leq \mathbb{E}_Y \lb \mathbb{E}_{X|Y} \lb \log \lp \frac{p_{X|Y}(X)}{p_{X}(X)} \rp \rb  \rb \\
+             & = \dkl \lp P_{X|Y} \parallel P_X | P_Y \rp = I(X;Y), 
+        \end{align}
+        where the inequality is due to~\Cref{prop:misspecified-distribution-portfolio}. 
+    \end{proof}
