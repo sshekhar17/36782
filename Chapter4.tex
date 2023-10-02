@@ -1,6 +1,429 @@
-\section{Universal Compression}
-\subsection{Redundancy-Capacity}
-\subsection{Regret-Complexity}
-\subsection{Mixture Method} 
 
+We consider two versions of the universal compression problem: 
+\begin{itemize}
+    \item Setting I: probabilistic setting, where the observations are drawn from an unknown distribution $P$ from a known class $\mc{P}$. The goal is to develop a compression scheme that minimizes the worst case (over all $P \in \mc{P}$) redundancy. 
+    \item Setting II: individual sequence setting, where our goal is to compress sequences of observations with no probabilistic assumptions on the source. The objective is to compress as well as the best distribution  from some comparator class $\mc{P}$. 
+\end{itemize}
+
+\section{Universal Compression I: Probabilistic Setting}
+\label{sec:universal-compression-probabilistic}
+    Let $\mc{P}$ denote a class of distributions on an alphabet $\mc{X}$. Our goal is to design a compressor $Q$ that minimizes the worst case redundancy. In particular, we recall that the redundancy of $Q$ with respect to the distribution $P$ is defined as  
+    \begin{align}
+        R(Q, P) = \mathbb{E}_P \lb \log \lp \frac{1}{q(X)} \rp - \log \lp \frac{1}{p(X)} \rp \rb = \dkl(P \parallel Q). 
+    \end{align}
+    Now, the worst case redundancy for $Q$, and the minimax optimal value of redundancy for the class $\mc{P}$ are defined as follows: 
+    \begin{align}
+        R(Q, \mc{P}) = \max_{P \in \mc{P}} \dkl(P \parallel Q), \quad \text{and} \quad R^*(\mc{P}) = \min_{Q} \max_{P \in \mc{P}} \dkl(P \parallel Q) = \min_{Q} R(Q, \mc{P}).  \label{eq:minimax-redundancy}
+    \end{align}
+    \begin{remark}
+        \label{remark:class-of-Q} Note that, for most non-trivial distribution classes $\mc{P}$, in order to achieve a small redundancy, we need to allow $Q$ to be an arbitrary distribution, and more specifically, it should not be restricted to lie in $\mc{P}$. For example, consider the product space $\mc{X}^n$, and let $\mc{P}$ denote the class of all \iid distributions on $\mc{X}^n$. Then, if $Q$ is restricted to lie in $\mc{P}$, then it is easy to verify that $R^*(\mc{P}) = \Omega (n)$. 
+        That is, it is not possible to achieve sublinear redundancy without allowing $Q$ to lie outside $\mc{P}$. 
+    \end{remark}
+
+    Our goal is to design schemes that match the optimum redundancy $R^*(\mc{P})$ in a computationally efficient manner. First, we present a simple typical-set based compression scheme, that achieves sup-linear redundancy for the class of \iid distributions on finite alphabet $\mc{X}$. 
+    
+\subsection{Warmup: Typicality based compression}
+\label{subsec:typicality-based-compression} 
+    Let $\X = \{x_1, \ldots, x_m\}$ denote a finite alphabet. For any $n \geq 1$, and  $x^n \in \X^n$, define the following terms: 
+    \begin{itemize}
+        \item Let $\Phat_{x^n}$ denote the ``type'' or the ``empirical distribution'' associated with $x^n$. Let $\mc{P}_n$ denote the set of all distinct types possible using elements of $\X^n$. It is easy to verify that $|\mc{P}_n| = {n+m-1 \choose m-1} \leq (n+1)^m$. Let $K_n$ denote the cardinality of $\mc{P}_n$, and furthermore, enumerate the possible types $\Phat_1, \ldots, \Phat_{K_n}$. 
+
+        \item For every $\Phat \in \mc{P}_n$, let $T(\Phat)$ denote the ``type class'' of $\Phat$. That is, $T(\Phat)$ represents all the sequences $x^n \in \X^n$, such that $\Phat_{x^n} = \Phat$. Recall that we know the following 
+        \begin{align}
+             \frac{2^{nH(\Phat)}}{K_n} \;\leq\; |T(\Phat)| \;\leq\; 2^{n H(\Phat)}. 
+        \end{align}
+        For every type class, enumerate all the elements in some order. 
+    \end{itemize}
+    We are now ready to describe the coding scheme for all \iid sources on the finite alphabet $\X$. 
+    \begin{definition}[Type-based universal code]
+        \label{def:universal-typical-code} 
+        Given a sequence $x^n \in \X^n$, proceed as follows: 
+        \begin{itemize}
+            \item Identify the type $\Phat \equiv \Phat_{x^n}$ of the sequence. 
+            \item Encode the index of the type of $\Phat_{x^n}$ among the $K_n$ possible types, using $\lceil \log K_n \rceil$ bits. Denote this by $C_1(x^n)$ 
+            \item Next, identify the position of the sequence $x^n$ in the type class $T(\Phat_{x^n})$. 
+            \item Encode this index using $\lceil \log |T(\Phat_{x^n})| \rceil$ bits. Denote this with $C_2(x^n)$. 
+            \item Concatenate the two to get the codeword for $x^n$. That is $C(x^n) = C_1(x^n) C_2(x^n)$. 
+        \end{itemize}
+    \end{definition}
+
+    The main result of this section is that the redundancy of this coding scheme is sublinear in the blocklength~(i.e., $n$), for any \iid distribution $P^n$ on $\X^n$. 
+    \begin{proposition}
+        \label{prop:universal-typical-code} Let $X^n \sim P^n$ denote an \iid sequence on $\X^n$. Let $C(X^n)$ denote the codeword assigned to $X^n$ by the scheme described in~\Cref{def:universal-typical-code}. Then, we have 
+        \begin{align}
+            \lim_{n \to \infty} \frac{1}{n} \mathbb{E}_{P^n}[\ell_C(X^n)] = 0, 
+        \end{align}
+        for all $P \in \mc{P}(\X)$. 
+    \end{proposition}
+
+    \begin{proof}
+        The proof of this result uses standard typicality arguments. In particular, fix an arbitrary $\epsilon >0$, and define the typical set $A_\epsilon = \{ x^n \in \X^n: |-\log(p^n(x^n))/n - H(P)| \leq \epsilon\}$. Then, for $n$ large enough, recall the following facts: 
+        \begin{itemize}
+            \item $P^n(A_\epsilon) \geq 1- \epsilon$. 
+            \item $2^{-n(H(P) + \epsilon)} \leq P^n(x^n) \leq 2^{- n (H(P) - \epsilon)}$. 
+            \item $2^{n(H(P) - \epsilon)} \leq |A_{\epsilon}| \leq 2^{n(H(P)+ \epsilon)}$. 
+        \end{itemize}
+        Now, consider any $x^n \in A_\epsilon \cap T(\Phat)$ with type $\Phat$.  We know that the probability assigned to it by $P^n$ satisfies
+        \begin{align}
+            2^{-n (H(P) +\epsilon)}  \leq P^n(x^n) = 2^{-n \lp H(\Phat) + \dkl(\Phat \parallel P) \rp} \leq 2^{-n (H(P) -\epsilon)}. 
+        \end{align}
+        This, in turn, implies 
+        \begin{align}
+            H(\Phat) + \dkl(\Phat \parallel P) \leq H(P) + \epsilon, \quad \Rightarrow \quad H(\Phat)  \leq H(P) + \epsilon. 
+        \end{align}
+        Hence, we have 
+        \begin{align}
+            A_\epsilon \subset B_\epsilon \defined \bigcup_{\Phat: H(\Phat) \leq H(P) + \epsilon} T(\Phat). 
+        \end{align}
+        Clearly, $P^n(B_\epsilon) \geq P^n(A_\epsilon) \geq 1-\epsilon$. Now, note the following: 
+        \begin{itemize}
+            \item The number of bits assigned to elements of $B_\epsilon$ is no larger than $n (H(P) + \epsilon) + m \log(n+1) + 2$. 
+            \item The number of bits assigned to elements of $\X^n \setminus B_\epsilon$ is trivially upper bounded by $n \log m  + m \log(n+1) + 2$. 
+        \end{itemize}
+        These two facts imply that the expected codeword length is upper bounded by 
+        \begin{align}
+            \mathbb{E}_P[\ell_C(X^n)] \leq (1-\epsilon) \lp n H(P) + n \epsilon + 2  + m \log(n+1)\rp + \epsilon \lp n \log m  + m \log (n+1) + 2 \rp. 
+        \end{align}
+        Or, in other words, we have 
+        \begin{align}
+            \frac{1}{n} \mathbb{E}_P[\ell_C(X^n)] \leq (1-\epsilon) H(P) + \epsilon \lp 1 + \log m \rp + \frac{m \log(n+1) + 2}{n}.  
+        \end{align}
+        Taking the limit to $n$, we get the required statement 
+        \begin{align}
+            \lim_{n \to \infty} \frac{1}{n} \mathbb{E}_P[\ell_C(X^n)] \leq H(P) + \epsilon \lp  1 + \log m - H(P) \rp = H(P) + \mc{O}(\epsilon). 
+        \end{align}
+        Since $\epsilon>0$ was arbitrary, the result follows. 
+    \end{proof}
+    The above construction shows that there exist coding schemes that asymptotically achieve the optimal compression rate for any \iid distribution on a per symbol basis. We now investigate what is the correct convergence rate. 
+
+
+
+\subsection{Redundancy-Capacity}
+\label{subsec:redundancy-capacity}
+    We now return to the analysis of the minimax redundancy, defined in~\eqref{eq:minimax-redundancy}. For simplicity, we focus on the case of a finite class of distributions, $\mc{P} = \{P_1, \ldots, P_N\}$ on some discrete alphabet $\X$. Note that this $\X$ itself could be some product space (say $\Y^n$), and the $P_i's$ might represent the distributions over these products spaces. 
+
+    To state the main result of this section, we need to introduce some notation. Let $U$ be any $[N]$-valued random variable with distribution $\pi_U$. Define the channel $P_{X|U}$ with $P_{X|U=j} = P_j$. Then, the capacity of this channel is defined as 
+    \begin{align}
+        C = \sup_{\pi_U} I(U; X).  \label{eq:capacity}
+    \end{align}
+    Our main result of this section connects this term to the minimax redundancy. 
+    \begin{theorem}
+         \label{thm:redundancy-capacity} The minimax redundancy for the class $\mc{P}$ is equal to the capacity defined in~\eqref{eq:capacity}. That is, 
+         \begin{align}
+             R^*(\mc{P}) = \min_{Q} \; \max_{P_i \in \mc{P}} \; \dkl(P_i \parallel Q) = C = \sup_{\pi_U} I(U;X).  
+         \end{align}
+         Furthermore, the optimal coding distribution is $Q = Q_{\pi^*} = \sum_{i=1}^n \pi^*(i) P_i$, where $\pi^*$ is the capacity achieving input distribution. 
+    \end{theorem}
+    % 
+    \begin{proof}
+        The proof of this result proceeds in two steps: 
+        \begin{itemize}
+            \item The first step is to use the minimax theorem to observe that 
+            \begin{align}
+                \min_{Q} \max_{P_i} \dkl(P_i \parallel Q) = \max_{\pi} \min_{Q} \sum_{i=1}^N \pi_i \dkl(P_i \parallel Q). 
+            \end{align}
+            \item The second step is to show that $\min_{Q} \sum_{i=1}^N \pi_i \dkl(P_i \parallel Q)$ is actually equal to $I(U; X)$ with $X \sim \pi$. 
+        \end{itemize}
+        To see the first result, we note that 
+        \begin{align}
+            \min_{Q} \; \max_{P_i \in \mc{P}} \dkl(P_i \parallel Q) = \min_{Q} \; \max_{\pi} \sum_{i=1}^N \pi_i \dkl(P_i \parallel Q) =  \min_{Q} \; \max_{\pi} \mc{C}(Q, \pi). 
+        \end{align}
+        The objective function $\mc{C}$ is convex in the first argument, and linear~(hence concave) in the second argument. Furthermore, both the action spaces are compact. Thus, by an application of the minimax theorem, we have 
+        \begin{align}
+            R^*(\mc{P}) = \max_{\pi}\; \min_{Q} \; \mc{C}(Q, \pi) = \max_{\pi}\; \min_{Q} \; \sum_{i=1}^N \pi_i \dkl(P_i \parallel Q). 
+        \end{align}
+        To complete the proof, we will show the variational definition of the mutual information between $U$ and $X$. 
+        \begin{align}
+            I(U; X) & = \dkl( P_{UX} \parallel \pi P_X) = \dkl \lp P_{X|U} \parallel P_X | \pi \rp \\
+            & = \sum_{i=1}^N \pi_i \dkl(P_i \parallel P_\pi) = \sum_{i=1}^N \pi_i \sum_{x \in \X} p_i(x) \log \lp \frac{p_i(x)}{p_\pi(x)} \rp. 
+        \end{align}
+        Now consider any distribution $Q$ over $\X$ with \pmf $q$. Then, multiplying and dividing inside the logarithm with $q(x)$, we get 
+        \begin{align}
+            I(U;X) & = \sum_{i=1}^N \pi_i \sum_{x \in \X} p_i(x) \lp \log \lp \frac{p_i(x)}{q(x)} \rp - \log \lp \frac{p_\pi(x)}{q(x)} \rp  \rp \\
+            & = \sum_{i=1}^n \pi_i \dkl(P_i \parallel Q) - \sum_{x \in \X} \sum_{i=1}^n \pi_i p_i(x) \log \lp \frac{p_\pi(x)}{q(x)} \rp  \\
+            & = \sum_{i=1}^n \pi_i \dkl(P_i \parallel Q) - \dkl(P_\pi \parallel Q) 
+        \end{align}
+        Thus, we have proved that 
+        \begin{align}
+            I(U; X) = \min_{Q}\sum_{i=1}^n \pi_i \dkl(P_i \parallel Q), 
+        \end{align}
+        with equality achieved at $Q = P_\pi$, where $U \sim \pi$. THe final step is to observe that 
+        \begin{align}
+            C = \max_{\pi} I(U; X) = \max_{\pi} \min_{Q} \sum_{i=1}^N \pi_i \dkl(P_i \parallel Q) = R^*(\mc{P}). 
+        \end{align}
+        This completes the proof. 
+    \end{proof}
+
+    Some remarks on this result: 
+    \begin{itemize}
+        \item Our goal was to find a single distribution $Q$ that minimizes the worst case redundancy against an adversarially chosen $P_i \in \mc{P}$. This result tells us that the optimal $Q$ is a convex combination (i.e., a mixture) of all the distributions in $\mc{P}$. Furthermore, surprisingly it also says that the optimal mixing distribution is the same as the c.a.i.d. of the channel $P_{X|U}$ introduced earlier. 
+        \item The result is also true more generally for arbitrary finite dimensional parametric families of distributions $ \mc{P} = \{P_\theta: \theta \in \Theta \subset \mathbb{R}^d\}$ for some finite $d \geq 1$. 
+    \end{itemize}
+
+    \paragraph{Connection to exponentially weighted predictors.} Consider the $n$-fold product of a finite alphabet, denoted by $\X^n$, and let $\{p_{\theta}: \theta \in \Theta\}$ denote a class of distributions over $\X^n$. For any distribution $\pi$ over the parameter set $\Theta$, let $q^n$ the corresponding mixture distribution over $\X^n$. Then, we have 
+    \begin{align}
+        q^n(x^n) = \int_{\Theta} \pi(\theta) p^n(x^n) d\theta = \prod_{i=1}^n q_i(x_i|x^{i-1}), \quad \text{where} \quad q_i(x_i|x^{i-1}) = \frac{q^i(x^i)}{q^{i-1}(x^{i-1})}. 
+    \end{align}
+    In the display above, $q^i(x^i)$ denotes the marginal distribution assigned to $x^i$ by $q^n$: that is, by summing over all possible $x_{i+1}^n$ values. Now, observe that 
+    \begin{align}
+        q_i(x_i|x^{i-1}) &= \frac{ \int_{\Theta} \pi(\theta) p_{\theta}(x^{i-1}) p_{\theta}(x_i|x^{i-1})d\theta }{\int_{\Theta} \pi(\theta')  p_{\theta'}(x^{i-1})d\theta'} = 
+        \int_{\Theta} \frac{  \pi(\theta) p_{\theta}(x^{i-1}) }{\int_{\Theta} \pi(\theta')  p_{\theta'}(x^{i-1})d\theta'} p_{\theta}(x_i|x^{i-1})d\theta  \\
+        & \int_{\Theta} \pi(\theta|x^{i-1}) p_{\theta}(x_i| x^{i-1}) d\theta. 
+    \end{align}
+    In many cases, this predictive distribution of $q_i(\cdot|x^{i-1})$ can be computed in closed form. Furthermore, we can interpret the posterior distribution as follows: 
+    \begin{align}
+        \pi(\theta|x^{i-1}) p_{\theta}(x_i|x^{i-1}) \propto \pi(\theta) p_{\theta}(x^{i-1}) p_{\theta}(x_i|x^{i-1}) = \pi(\theta) \exp \lp - \log(1/p_{\theta}(x^{i-1})) \rp  p_{\theta}(x_i|x^{i-1}). 
+    \end{align}
+    Thus, the mixture prediction strategy is an instance of a more general class of predictors, called the \emph{exponentially weighted} predictors. 
+    
+\subsection{Asymptotically minimax optimal redundancy with Jeffreys prior}
+\label{sec:jeffreys-1}
+    In general, computing the capacity achieving input distribution is non-trivial, even for simple classes such as class of \iid Bernoulli distributions. Instead, we now relax the requirements, instead look to find the distribution achieving asymptotically minimax optimal redundancy against the class of all \iid distributions. 
+
+    \begin{theorem}
+        \label{thm:jeffreys-redundancy} Let $\X$ denote a finite alphabet, and for any $n \geq 1$, let $\mc{P}_n$ denote the class of all \iid distributions on $\X^n$. Then, $Q_\pi$ where $\pi \equiv \pi_J$ is Jeffreys prior achieves asymptotically minimax optimal redundancy.
+
+        In other words, the redundancy of any mixture $\pi$ satisfies 
+        \begin{align}
+            R(Q_\pi, P_\theta) = \frac{m-1}{2} \log (n/2 \pi e) + \frac{1}{2} \log \lp \frac{\pi(\theta)}{\sqrt{\text{det}J(\theta)}} \rp + o(1). 
+        \end{align}
+        The only $\pi$-dependent term is minimized by setting $\pi(\theta) \propto \sqrt{\text{det}(J(\theta))}$, which gives us the required result. 
+    \end{theorem}
+
+    \begin{remark}
+        For the case considered above, Jeffreys prior is defined as 
+        \begin{align}
+            \pi(\theta) = c_m \frac{1}{\sqrt{\prod_{x \in \X} \theta(x)}}, \quad \text{with} \quad c_m \defined \frac{\Gamma(m/2)}{\Gamma(1/2)^m}. 
+        \end{align}
+        It is easy to verify that in this case, the predictive distribution is the ``add-$1/2$'' estimators: 
+        \begin{align}
+            q_i(x|x^{i-1}) = \frac{1/2 + \sum_{j=1}^{i-1} \boldsymbol{1}_{x_j=x}}{m/2 + i-1}. 
+        \end{align}
+        Thus, this prediction scheme can be combined with the arithmetic coding scheme, to get a computationally efficient way of encoding any \iid source with near-optimal redundancy of $\frac{m-1}{2} \log(n/2\pi e)$. 
+    \end{remark}
+    \begin{remark}
+        \label{remark:jeffreys-interpretation-1} This result provides a new interpretation of Jeffreys prior. In statistics, this prior distribution is used as it is invariant to a coordinate transformation (under some mild regularity assumptions). 
+
+        In proving~\Cref{thm:jeffreys-redundancy}, we can show that the mutual information between $U \sim \pi$ and the observations can be written as 
+        \begin{align}
+            I(U; X^n) = \frac{m-1}{2} \log \lp \frac{n}{2 \pi e} \rp + \int_{\Theta} \log \lp \frac{\sqrt{\text{det}(J(u)}}{\pi(u)} \rp \pi(u) du  + o(1). 
+        \end{align}
+        Then, by choosing $\pi_J(u) \propto \sqrt{\text{det}(J(u))}$, we can show that 
+        \begin{align}
+            \int_{\Theta} \pi(u) \log \lp \frac{\sqrt{\text{det}(J(u)}}{\pi(u)} \rp \pi(u) du = -\dkl \lp \pi \parallel \pi_J \rp + \log \lp \int_{\Theta} \sqrt{\text{det}(J(u))} du \rp.  
+        \end{align}
+        Thus, Jeffreys prior asymptotically maximizes the mutual information between the parameter $U$ and the observations $X^n$: such a prior is called a reference prior.  
+    \end{remark}
+    
+    The proof of this statement is quite technical; instead of describing all the details, we present an outline.  
+\section{Universal Compression II: Individual Sequence}
+\label{sec:universal-compression-individual}
+    We now consider the second framework of universal compression. In this setting, instead of looking at the average suboptimality, our goal is to minimize the worst case (over all sequences) suboptimality. In particular, the regret incurred by a predictor $q^n$, with respect to another predictor $p^n$, on a sequence of symbols $x^n$ is defined as 
+    \begin{align}
+        \regret(q^n, p^n, x^n) = \log \lp \frac{1}{q^n(x^n)} \rp  - \log \lp \frac{1}{p^n(x^n)} \rp.  
+    \end{align}
+    Our goal is to control the worst case regret over all sequences: 
+    \begin{align}
+        \regret(q^n, p^n) = \sup_{x^n \in \X^n} \regret(q^n, p^, x^n). 
+    \end{align}
+    Note that in order to achieve sublinear in $n$ regret, we must restrict the class of distributions in which $p^n$ can lie. Otherwise, for any $q^n$, there exists a sequence $x^n$, and a distribution $p^n$, such that 
+    \begin{align}
+        \regret(q^n, p^n, x^n) \geq n \log m. 
+    \end{align}
+    Thus, we are interested in the worst case regret with respect to a class of predictors/distributions $\mc{P}$, defined as 
+    \begin{align}
+        \regret(q^n, \mc{P}) = \sup_{p^n \in \mc{P}}  \sup_{x^n \in \X^n} \log \lp \frac{p^n(x^n)}{q^n(x^n)} \rp. \label{eq:minimax-regret}
+    \end{align}
+
+    \subsection{Regret-Complexity}
+        \label{subsec:regret-complexity} 
+        For a given class of distributions $\mc{P} = \{ p_\theta: \theta \in \Theta \}$, for some parameter space $\Theta$, define the complexity of this class of distributions as 
+        \begin{align}
+            \complexity(\Theta) \defined \log \lp  \sum_{x \in \X} \sup_{\theta \in \Theta } p_{\theta}(x) \rp. 
+        \end{align}
+        We can now state the main result of this section, which characterizes the minimax regret for this class of distributions. 
+        \begin{theorem}
+            \label{thm:regret-complexity} The minimax regret for the class of predictors $\mc{P} = \{p_{\theta}: \theta \in \Theta\}$ is equal to 
+            \begin{align}
+                \regret(\Theta) \defined  \inf_{q} \sup_{\theta} \sup_{x \in \X} \log \lp \frac{p_\theta(x)}{q(x)}\rp = \complexity(\Theta). 
+            \end{align}
+            Furthermore, the distribution that achieves this is the Normalized Maximum Likelihood~(NML) distribution, defined as 
+            \begin{align}
+                q(x) \propto \sup_{\theta \in \Theta} p_\theta(x). 
+            \end{align}
+            This is also called the Shtarkov distribution. 
+        \end{theorem}
+        \begin{proof}
+            We prove this result in two steps: 
+            \begin{itemize}
+                \item The first step is to show that the NML strategy has a constant regret on every outcome $x$. 
+                \item Next, we show that for any other prediction strategy, the regret is at least as large as the constant from the previous step. 
+            \end{itemize}
+
+            First, we observe that for the NML strategy $q^*$, we have 
+            \begin{align}
+                \regret(q^*, \Theta) &= \sup_{\theta \in \Theta} \sup_{x \in \X}  \log \lp \frac{p_\theta(x)}{q^*(x)} \rp =  \sup_{x \in \X} \log \lp \frac{\sup_{\theta \in \Theta} p_{\theta}(x)}{q^*(x)} \rp \\
+                & =  \sup_{x \in \X} \log \lp \frac{\sup_{\theta \in \Theta} p_{\theta}(x)}{\sup_{\theta'} p_{\theta'}(x) / \sum_{x'} \sup_{\theta'}p_{\theta'}(x')} \rp  = \complexity(\Theta). 
+            \end{align}
+            Next, we consider any other predictor $q$, and observe that 
+            \begin{align}
+                \regret(q, \Theta)  = \sup_{x} \sup_{\theta} \log \lp \frac{p_{\theta}(x)}{q(x)} \rp = \sup_{x}  \log \lp \frac{\sup_{\theta} p_{\theta}(x)}{q(x)} \rp  = \sup_{x}  \log \lp \frac{q^*(x)}{q(x)} \rp  + \complexity(\Theta)
+            \end{align}
+            Now, we use the fact that the maximum over $x$ is lower bounded by the average to get 
+            \begin{align}
+                \regret(q, \Theta) \geq \sum_{x \in \X} q^*(x) \log \lp \frac{q^*(x)}{q(x)} \rp + \complexity(\Theta) = \dkl(q^* \parallel q) + \complexity(\Theta). 
+            \end{align}
+        \end{proof}
+        \begin{remark}
+            \label{remark:nml-product-space} When working with observations in a product space $\X^n$, the above statement has simple analog: 
+            \begin{align}
+                q^n(x^n) \propto \sup_{\theta \in \Theta} p^n_{\theta}(x^n), 
+            \end{align}
+            where $\{p^n_\theta: \theta \in \Theta \}$ denotes a class of distributions over the product space (not necessary independent or \iid distributions). This approach suffers from two drawbacks: 
+            \begin{itemize}
+                \item in general computing the NML distribution incurs exponential complexity, which is infeasible for all but very small $n$ and $m$. 
+                \item the above scheme is not `anytime': we cannot update the NML distribution incrementally, and we must recompute it from scratch for every new observation. 
+            \end{itemize}
+        \end{remark}
+
+        \paragraph{Approximation of the complexity parameter for \iid Bernoulli sources.} For \iid Bernoulli sources, we can obtain a tight approximation of the complexity using approximations of the binomial coefficients. In particular, we have $\X = \{0, 1\}$, $\Theta = [0,1]$, and $\mc{P}_n$ denotes the class of all \iid Bernoulli distributions with parameter in $\Theta$. First, note that for any $x^n \in \X^n$, we have 
+        \begin{align}
+            p_{\theta}(x^n) = \theta^{\sum_{i=1}^n x_i}(1-\theta)^{\sum_{i=1}^n 1-x_i} = \exp \lp n (\dkl(\thetahat \parallel \theta) + h_2(\thetahat) )\rp,  \quad \text{with} \quad \thetahat = \frac{\sum_{i=1}^n x_i}{n}. 
+        \end{align}
+        This implies that 
+        \begin{align}
+            \sup_{\theta \in \Theta} p_{\theta}^n(x^n) = \exp \lp n h_2(\thetahat) \rp. 
+        \end{align}
+        Now, we use the above expression to write
+        \begin{align}
+            \exp \lp \complexity(\Theta) \rp &= \sum_{x^n \in \X^n}\sup_{\theta \in \Theta} p_{\theta}^n(x^n) = \sum_{x^n \in \X^n} \exp \lp n h_2(\thetahat) \rp  \\
+            & = \sum_{i=0}^n {n \choose i} \exp \lp h_2(i/n) \rp. 
+        \end{align}
+        Now, we use the fact that for any $i \in \{1, \ldots, n-1\}$, we have 
+        \begin{align}
+            {n \choose i} = \frac{ \exp \lp n h_2(i/n) \rp}{\sqrt{cn (i/n) (1-i/n)}}, \quad \text{with} \quad \frac{1}{c} \in \lb \frac{1}{8}, \frac{1}{\pi} \rb. 
+        \end{align}
+        Thus, using this, we get 
+        \begin{align}
+            \exp \lp \complexity(\Theta) \rp  &\;=\; 2 +  \sum_{i=1}^{n-1} \frac{1}{ \sqrt{c n (i/n)(1-i/n)}} \;=\; 2 +  \sqrt{\frac{n}{c}} \, \sum_{i=1}^{n-1} \frac{1}{ \sqrt{(i/n)(1-i/n)}} \frac{1}{n} \\
+            &\;\approx \; 2 +  \sqrt{\frac{n}{c}} \, \int_{\Theta} \frac{d\theta}{\sqrt{\theta(1-\theta)}} = 2 +  \sqrt{\frac{n}{c}} \, \int_{\Theta} \sqrt{J_\theta} d\theta.
+        \end{align}
+        Thus, on taking the logarithm, we get 
+        \begin{align}
+            \complexity(\Theta) \approx \frac{1}{2} \log \lp \frac{n}{\pi} \rp + \log \lp \int_{\Theta} \sqrt{J_\theta} d \theta \rp + O(1). 
+        \end{align}
+        Thus, for the case of \iid Bernoulli class, the complexity (hence minimax regret) is with a constant term of the optimal minimax redundancy. 
+
+        
 \section{Universal Portfolios}
+\label{sec:universal-portfolios}
+    We study the individual sequence version of universal portfolio optimization. In particular, our goal is to design strategies that work nearly as well as the best constantly rebalanced portfolio in hindsight. More specifically, let $(\bvec_i)_{i \geq 1}$ denote any predictable portfolio strategy, and let $W_n(x^n)$ denote the corresponding wealth after $n$ rounds. Our goal is to understand the value of $V_n$ below, and find predictable investment strategies that come close to this optimum value. 
+    \begin{align}
+        V_n \defined \max_{(\bvec_i)_{i \geq 1}} \min_{x^n}  \frac{W_n(x^n)}{\max_{\bvec}W_n(\bvec, x^n)} = \max_{(\bvec_i)_{i \geq 1}} \min_{x^n}  \frac{W_n(x^n)}{W_n^*(x^n)}. 
+    \end{align}
+
+    We present two results regarding this quantity. For simplicity, we will focus on the case of two stocks (i.e., $m=2$). 
+
+    \begin{proposition}
+        \label{prop:universal-portfolio-1} The ratio of the wealth achieved by the best predictable strategy, and the best constantly rebalanced portfolio in hindsight, is 
+        \begin{align}
+            \frac{1}{V_n} = \sum_{i=0}^n {n \choose i} 2^{-n h_2(i/n)}. 
+        \end{align}
+        Using Stirlings approximation, we have 
+        \begin{align}
+            \frac{1}{2 \sqrt{n+1}} \leq V_n \leq \frac{2}{\sqrt{n} }, \quad \text{for all } n \geq 1. 
+        \end{align}
+        This implies that there exists an investment strategy that satisfies 
+        \begin{align}
+            \frac{W_n(x^n)}{W_n^*(x^n)} \geq \frac{1}{2 \sqrt{n+1}}, \quad \text{for all } x^n, \; \text{and } n \geq 1. 
+        \end{align}
+    \end{proposition}
+
+    The betting strategy that achieves the optimal value of $V_n$ in the statement above is not `anytime', as it is the portfolio analog of Shtarkov's distribution. We now show that a mixture strategy can nearly achieve this optimum performance. 
+
+    Let $\mu$ denote any distribution over the space of probability distributions $\Delta_1$, that characterizes all constantly rebalanced strategies for $2$ stocks. Then, the mixture strategy selects $\bvec_{i+1}$  is defined as follows: 
+    \begin{align}
+        \bvec_{i+1} = \frac{\int \bvec W_i(\bvec, x^i) d\mu(\bvec)}{\int W_i(\bvec, x^i) d\mu(\bvec)}. 
+    \end{align}
+    It is easy to verify that 
+    \begin{align}
+        \langle \bvec_{i+1}, x_{i+1} \rangle =  \frac{\int \langle \bvec, x_{i+1} \rangle W_i(\bvec, x^i) d\mu(\bvec)}{\int W_i(\bvec, x^i) d\mu(\bvec)} =  \frac{\int  W_{i+1}(\bvec, x^{i+1}) d\mu(\bvec)}{\int W_i(\bvec, x^i) d\mu(\bvec)}. 
+    \end{align}
+    This means that under this strategy, the wealth after $i$ rounds is the mixture (weighted according to $\mu$) of the wealth achieved by all constantly rebalanced portfolios. 
+
+    \begin{proposition}
+        \label{prop:universal-portfolio-2} The wealth of the mixture investment strategy on some sequence $x^n$, denoted by $W_n(x^n)$,  satisfies the following: 
+        \begin{align}
+            \frac{W_n(x^n)}{W_n^*(x^n)} \geq \frac{V_n}{\sqrt{2\pi}} \geq \frac{1}{2 \sqrt{2\pi(n+1)}}. 
+        \end{align}
+        Thus the performance of the mixture betting strategy is within a constant factor of the best (worst-case) performance achievable by any predictable betting strategy. 
+    \end{proposition}
+
+    \begin{proof} We proceed in the following steps: 
+
+    \emph{Transform wealth to sum of products.} Consider any investment strategy that bets $(\bvec_i)_{i \geq 1}$. Then, its wealth after $n$ rounds is 
+    \begin{align}
+        W_n(\bvec^n, x^n) &= \prod_{i=1}^n (\bvec_{i,1} x_{i,1} + \bvec_{i,2} x_{i,2} )  = \sum_{j^n \in \{1, 2\}^n } \prod_{i=1}^n \bvec_{i, j_i} x_{i, j_i}  \\
+        & \defined \sum_{j^n \in \{1, 2\}^n} w(j^n) x(j^n). 
+    \end{align}
+    In particular, for the mixture strategy we have  
+    \begin{align}
+        W_n(\mu, x^n) &= \int \prod_{i=1}^n (\bvec_1 x_{i,1} + \bvec_2 x_{i,2}) d\mu(\bvec)0  
+        = \int \sum_{j^n} \prod_{i=1}^n \bvec_{j_i} x_{i,j_i} d\mu(\bvec)  \\
+        & = \sum_{j^n} \lp  \int \prod_{i=1}^n \bvec_{j_i} d\mu(\bvec) \rp  \prod_{i=1}^n x_{j_i} \defined \sum_{j^n } w_\mu(j^n) x(j^n). 
+    \end{align}
+
+        \emph{Step 2: Get a lower bound on the ratio.} Now, for the sequence $x^n$, the ratio of the wealth of the mixture method, and the best constantly rebalanced portfolio in hindsight, is 
+        \begin{align}
+            \frac{W_n(\mu, x^n)}{W_n^*(x^n)} = \frac{\sum_{j^n} w_\mu(j^n) x(j^n) }{\sum_{j^n} w^*(j^n) x(j^n)} \geq \min_{j^n} \frac{w_\mu(j^n)}{w^*(j^n)} = \min_{j^n} \frac{\int \prod_{i=1}^n \bvec_{j_i} d\mu(\bvec)}{\prod_{i=1}^n \bvec^*_{j_i} }.  \label{eq:univ-port-1}
+        \end{align}
+        This shows that the worst case stock market is a horse race! 
+
+        \emph{Step 3: Calculate the denominator in~\eqref{eq:univ-port-1}.} Let us assume that the $j^n \in \{1, 2\}^n$ that achieves the minimum in~\eqref{eq:univ-port-1} has $l$ $1's$. Then, the optimal $\bvec^*$ for this sequence is $(b, 1-b)$, where $b = l/n$. Furthermore, the denominator in this case is $2^{-n h_2(l/n)}$. 
+
+        \emph{Step 4: Calculate the numerator.} If we take the Jeffreys prior, then we have $\mu(b) = 1/(\pi \sqrt{b (1-b)})$. This implies that the numerator in~\eqref{eq:univ-port-1} is 
+        \begin{align}
+            \int \prod_{i=1}^n b_{j_i} d\mu(b) &= \int b^{l} (1-b)^{n-l} \frac{1}{\pi \sqrt{b(1-b)}} db = \frac{1}{\pi} \int b^{l+1/2 - 1} (1-b)^{n-l+1/2 - 1} db  \\
+            & = \frac{\Gamma(l+1/2) \Gamma(n-l+1/2)}{\Gamma(n+1)}.  \label{eq:univ-port-2}
+        \end{align}
+
+        Plugging~\eqref{eq:univ-port-2} into~\eqref{eq:univ-port-1} gives us 
+        \begin{align}
+            \frac{W_n(\mu, x^n)}{W_n^*(x^n)} \geq \frac{\Gamma(l+1/2) \Gamma(n-l+1/2)}{\Gamma(n+1) 2^{-n h_2(l/n)}}  \geq \frac{V_n}{\sqrt{2\pi}} \geq \frac{1}{2 \sqrt{2 \pi (n+1)}}. 
+        \end{align}
+        Or equivalently, we have 
+        \begin{align}
+             \log \lp W_n^*(x^n) \rp -  \log \lp W_n(\mu, x^n) \rp   \leq \frac{1}{2} \log \lp 8\pi(n+1) \rp. 
+        \end{align}
+    \end{proof}
+    
+
+\section{Coin Betting}
+\label{sec:coin-betting}
+    In this section, we study a special case of the general case of the portfolio optimization problem. 
+    % 
+    \begin{definition}
+        \label{def:coin-betting-game} Let $W_0=1$, and proceed as follows, for $t=1, 2, \ldots:$
+        \begin{itemize}
+            \item Choose a $\lambda_t \in [-1,1]$. 
+            \item Observe the next value $c_t \in [-1,1]$.  
+            \item Update the wealth $W_t = W_{t-1} \times (1 + \lambda_t c_t)$. 
+        \end{itemize}
+        The goal is to minimize the following regret, with respect to the best constant bet in hindsight: 
+        \begin{align}
+            \mc{R}_n =  \sup_{\lambda \in [-1,1]} \sum_{t=1}^n \log (1 + \lambda c_t) - \sum_{t=1}^n \log( 1 + \lambda_t c_t). 
+        \end{align}
+    \end{definition}
+    % 
+    The first observation is that this is simply a portfolio optimization problem with two stocks, whose price relatives are $1+c_t$ and $1-c_t$ respectively in round $t$. Then, any portfolio allocation $\bvec = (b, 1-b)$ on these two stocks corresponds to betting $\lambda_b = 2b - 1$ in the coin betting game: 
+    \begin{align}
+        \langle \bvec, \xvec \rangle =  b (1+c_t) + (1-b)(1-c_t) = 1 + (2b - 1) c_t = 1 + \lambda_b c_t. 
+    \end{align}
+
+    For this problem, we can define the simple mixture strategy that selects $\lambda_t$ as 
+    \begin{align}
+        \lambda_t = \frac{ \int_{-1}^1 \lambda\, W_{t-1}^\lambda(c^{t-1}) d\mu(\lambda)} { \int_{-1}^1  W_{t-1}^\lambda(c^{t-1}) d\mu(\lambda)}, \quad \text{where} \quad W_{t-1}^\lambda(c^{t-1}) = \prod_{i=1}^{t-1} (1 + \lambda c_t ), 
+    \end{align}
+    where $\mu$ is the Beta~($1/2$) distribution. 
+
+    \paragraph{Application: Online linear optimization.} \red{TODO}
